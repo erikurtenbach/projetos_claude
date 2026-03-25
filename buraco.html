@@ -416,9 +416,15 @@
   <div id="rank-loading" class="loading"><div class="spinner"></div><span>Carregando…</span></div>
   <div id="rank-content" style="display:none">
     <div class="panel">
-      <div class="panel-title">&#127942; Ranking Individual Geral</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+        <div class="panel-title" style="margin-bottom:0">&#127942; Ranking Individual Geral</div>
+        <div style="display:flex;gap:4px;background:var(--input-bg);border-radius:8px;padding:3px;border:1px solid var(--border)">
+          <button id="sort-wins" onclick="setRankSort('wins')" style="padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:0.78rem;font-weight:700;background:var(--wine);color:#fff;transition:all 0.15s">Vitórias</button>
+          <button id="sort-pct"  onclick="setRankSort('pct')"  style="padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:0.78rem;font-weight:700;background:transparent;color:var(--text-muted);transition:all 0.15s">Win %</button>
+        </div>
+      </div>
       <div style="overflow-x:auto">
-        <table><thead><tr><th style="width:44px">#</th><th style="text-align:left;padding-left:14px">Jogador</th><th>Vitórias</th><th>Partidas</th><th>Win%</th></tr></thead><tbody id="rank-body"></tbody></table>
+        <table><thead><tr><th style="width:44px">#</th><th style="text-align:left;padding-left:14px">Jogador</th><th id="rank-th-wins" style="cursor:pointer">Vitórias ↓</th><th>Partidas</th><th id="rank-th-pct" style="cursor:pointer">Win%</th></tr></thead><tbody id="rank-body"></tbody></table>
         <div id="rank-empty" class="empty-state" style="display:none">Nenhum dado ainda.</div>
       </div>
     </div>
@@ -890,19 +896,44 @@
           players[name].games+=legGames;
         });
       });
-      const sorted=Object.entries(players).sort((a,b)=>b[1].wins-a[1].wins||b[1].games-a[1].games);
-      const medals=['🥇','🥈','🥉'];
-      const tbody=document.getElementById('rank-body'), empty=document.getElementById('rank-empty');
-      if (!sorted.length) { tbody.innerHTML=''; empty.style.display='block'; }
-      else {
-        empty.style.display='none';
-        tbody.innerHTML=sorted.map(([name,s],i)=>{
-          const pct=s.games?Math.round(s.wins/s.games*100):0;
-          return `<tr><td class="rank-num ${i<3?`rank-${i+1}`:''}">${i<3?medals[i]:i+1}</td><td style="text-align:left;padding-left:14px;font-weight:600">${esc(name)}</td><td><strong>${s.wins}</strong></td><td>${s.games}</td><td>${pct}%</td></tr>`;
-        }).join('');
-      }
+      rankPlayersCache = players;
+      renderRankTable();
       renderGroupRankings(data);
     } catch(e) { loading.style.display='none'; toast('Erro: '+e.message,true); }
+  }
+
+  let rankSortBy = 'wins';
+  let rankPlayersCache = {};
+
+  function setRankSort(by) {
+    rankSortBy = by;
+    document.getElementById('sort-wins').style.background = by==='wins' ? 'var(--wine)' : 'transparent';
+    document.getElementById('sort-wins').style.color      = by==='wins' ? '#fff' : 'var(--text-muted)';
+    document.getElementById('sort-pct').style.background  = by==='pct'  ? 'var(--wine)' : 'transparent';
+    document.getElementById('sort-pct').style.color       = by==='pct'  ? '#fff' : 'var(--text-muted)';
+    document.getElementById('rank-th-wins').textContent = 'Vitórias' + (by==='wins' ? ' ↓' : '');
+    document.getElementById('rank-th-pct').textContent  = 'Win%'     + (by==='pct'  ? ' ↓' : '');
+    renderRankTable();
+  }
+
+  function renderRankTable() {
+    const players = rankPlayersCache;
+    const sorted = Object.entries(players).sort((a,b) => {
+      if (rankSortBy === 'pct') {
+        const pa = a[1].games ? a[1].wins/a[1].games : 0;
+        const pb = b[1].games ? b[1].wins/b[1].games : 0;
+        return pb - pa || b[1].wins - a[1].wins;
+      }
+      return b[1].wins - a[1].wins || b[1].games - a[1].games;
+    });
+    const medals = ['🥇','🥈','🥉'];
+    const tbody = document.getElementById('rank-body'), empty = document.getElementById('rank-empty');
+    if (!sorted.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display='none';
+    tbody.innerHTML = sorted.map(([name,s],i) => {
+      const pct = s.games ? Math.round(s.wins/s.games*100) : 0;
+      return `<tr><td class="rank-num ${i<3?`rank-${i+1}`:''}">${i<3?medals[i]:i+1}</td><td style="text-align:left;padding-left:14px;font-weight:600">${esc(name)}</td><td><strong>${s.wins}</strong></td><td>${s.games}</td><td>${pct}%</td></tr>`;
+    }).join('');
   }
 
   function renderGroupRankings(data) {
