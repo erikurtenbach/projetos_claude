@@ -179,6 +179,39 @@
     .recent-game .rg-score { color: var(--text-muted); font-size: 0.8rem; }
     .recent-game .rg-partner { color: var(--text-muted); font-size: 0.75rem; margin-top: 2px; }
 
+    /* ── Sorteador ── */
+    .sorteio-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .sorteio-input-wrap { position: relative; }
+    .sorteio-input-wrap label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px; }
+    .sorteio-input-wrap input { width: 100%; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 8px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+    .sorteio-input-wrap input:focus { border-color: var(--gold); }
+    .sorteio-input-wrap input.drop-hover { border-color: var(--gold); background: #1e5c2a; }
+
+    .sorteio-result {
+      display: none;
+      animation: fadeSlideIn 0.4s ease;
+    }
+    .sorteio-result.show { display: block; }
+    @keyframes fadeSlideIn { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform: translateY(0); } }
+
+    .sorteio-cards { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; margin-bottom: 16px; }
+    .sorteio-card {
+      border-radius: 14px; border: 2px solid var(--border); padding: 20px 16px; text-align: center;
+      transition: border-color 0.3s;
+    }
+    .sorteio-card.d1 { background: #0e2d4a; border-color: #2563eb; }
+    .sorteio-card.d2 { background: #2a1a0a; border-color: var(--gold); }
+    .sorteio-card .sc-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .sorteio-card.d1 .sc-label { color: #60a5fa; }
+    .sorteio-card.d2 .sc-label { color: var(--gold-light); }
+    .sorteio-card .sc-player { font-size: 1.05rem; font-weight: 700; color: var(--text); margin: 5px 0; }
+    .sorteio-card .sc-player:first-of-type { border-bottom: 1px solid #ffffff11; padding-bottom: 8px; margin-bottom: 8px; }
+    .sorteio-vs { font-size: 1.2rem; font-weight: 900; color: var(--text-muted); text-align: center; }
+
+    .sorteio-actions { display: flex; gap: 10px; }
+    .sorteio-actions .btn-confirm { flex: 1; }
+    .sorteio-actions .btn-outline { flex: 1; margin-top: 0; }
+
     /* ── Edit modal ── */
     #edit-overlay { display: none; position: fixed; inset: 0; background: #000c; z-index: 200; align-items: center; justify-content: center; }
     #edit-overlay.show { display: flex; }
@@ -295,6 +328,7 @@
     <button class="nav-tab" id="tab-historico" onclick="goTo('historico')">Histórico</button>
     <button class="nav-tab" id="tab-ranking"   onclick="goTo('ranking')">Ranking</button>
     <button class="nav-tab" id="tab-jogadores" onclick="goTo('jogadores')">Jogadores</button>
+    <button class="nav-tab" id="tab-sorteio"   onclick="goTo('sorteio')">&#127922; Sorteio</button>
   </div>
 </header>
 
@@ -433,6 +467,75 @@
   </div>
 </div>
 
+<!-- ════ SORTEIO ════ -->
+<div class="screen" id="screen-sorteio">
+  <div class="panel">
+    <div class="panel-title">&#127922; Sortear Duplas</div>
+    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:16px;line-height:1.6">
+      Insira os 4 jogadores abaixo — ou arraste/toque os chips do histórico — e clique em Sortear.
+    </p>
+
+    <!-- Known players sidebar inline (chips strip) -->
+    <div id="sorteio-chips-wrap" style="margin-bottom:14px">
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">Jogadores com histórico</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px" id="sorteio-chips"></div>
+    </div>
+
+    <div class="sorteio-inputs">
+      <div class="sorteio-input-wrap">
+        <label>Jogador 1</label>
+        <input id="s-p1" type="text" placeholder="Nome ou arraste..." maxlength="20"
+          ondragover="dragOver(event)" ondrop="dropOnInput(event,'s-p1')" ondragleave="dragLeave(event)"
+          onclick="tapFillSorteio('s-p1')" oninput="clearSorteioResult()" />
+      </div>
+      <div class="sorteio-input-wrap">
+        <label>Jogador 2</label>
+        <input id="s-p2" type="text" placeholder="Nome ou arraste..." maxlength="20"
+          ondragover="dragOver(event)" ondrop="dropOnInput(event,'s-p2')" ondragleave="dragLeave(event)"
+          onclick="tapFillSorteio('s-p2')" oninput="clearSorteioResult()" />
+      </div>
+      <div class="sorteio-input-wrap">
+        <label>Jogador 3</label>
+        <input id="s-p3" type="text" placeholder="Nome ou arraste..." maxlength="20"
+          ondragover="dragOver(event)" ondrop="dropOnInput(event,'s-p3')" ondragleave="dragLeave(event)"
+          onclick="tapFillSorteio('s-p3')" oninput="clearSorteioResult()" />
+      </div>
+      <div class="sorteio-input-wrap">
+        <label>Jogador 4</label>
+        <input id="s-p4" type="text" placeholder="Nome ou arraste..." maxlength="20"
+          ondragover="dragOver(event)" ondrop="dropOnInput(event,'s-p4')" ondragleave="dragLeave(event)"
+          onclick="tapFillSorteio('s-p4')" oninput="clearSorteioResult()" />
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="sortearDuplas()">&#127922; Sortear Duplas</button>
+  </div>
+
+  <!-- Result -->
+  <div class="panel sorteio-result" id="sorteio-result">
+    <div class="panel-title">&#127381; Duplas Sorteadas</div>
+
+    <div class="sorteio-cards">
+      <div class="sorteio-card d1">
+        <div class="sc-label">&#128309; Dupla 1</div>
+        <div class="sc-player" id="sr-p1">—</div>
+        <div class="sc-player" id="sr-p2">—</div>
+      </div>
+      <div class="sorteio-vs">VS</div>
+      <div class="sorteio-card d2">
+        <div class="sc-label">&#128992; Dupla 2</div>
+        <div class="sc-player" id="sr-p3">—</div>
+        <div class="sc-player" id="sr-p4">—</div>
+      </div>
+    </div>
+
+    <div class="sorteio-actions">
+      <button class="btn-outline" onclick="sortearDuplas()">&#8635; Ressortear</button>
+      <button class="btn-confirm" onclick="usarSorteio()">&#9889; Usar estas Duplas</button>
+    </div>
+  </div>
+</div>
+
 <!-- ════ EDIT OVERLAY ════ -->
 <div id="edit-overlay">
   <div class="edit-box">
@@ -517,6 +620,7 @@
     if (screen === 'historico') loadHistory();
     if (screen === 'ranking')   loadRanking();
     if (screen === 'jogadores') loadJogadores();
+    if (screen === 'sorteio')   renderSorteio();
   }
 
   // ─── Nova Partida ─────────────────────────────────────────
@@ -929,6 +1033,86 @@
         </div>
       </div>`;
     }).join('');
+  }
+
+  // ─── Sorteio ─────────────────────────────────────────────
+  let sorteioSelectedChip = null;
+
+  async function renderSorteio() {
+    // Load chips for the sorteio screen
+    const wrap = document.getElementById('sorteio-chips');
+    wrap.innerHTML = '<span style="font-size:0.76rem;color:var(--text-muted)">Carregando…</span>';
+    try {
+      const { data } = await db.from('partidas').select('dupla1_jogador1,dupla1_jogador2,dupla2_jogador1,dupla2_jogador2');
+      const names = new Set();
+      data?.forEach(p => [p.dupla1_jogador1,p.dupla1_jogador2,p.dupla2_jogador1,p.dupla2_jogador2].forEach(n => { if (n) names.add(n); }));
+      wrap.innerHTML = '';
+      if (!names.size) { wrap.innerHTML = '<span style="font-size:0.76rem;color:var(--text-muted);font-style:italic">Nenhum histórico ainda</span>'; return; }
+      [...names].sort().forEach(name => {
+        const chip = document.createElement('div');
+        chip.className = 'player-chip'; chip.textContent = name; chip.draggable = true; chip.dataset.name = name;
+        chip.style.cssText = 'padding:5px 10px;font-size:0.8rem;';
+        chip.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', name); sorteioSelectedChip = null; clearSorteioChips(); });
+        chip.addEventListener('click', e => {
+          e.stopPropagation();
+          if (sorteioSelectedChip === name) { sorteioSelectedChip = null; clearSorteioChips(); }
+          else { sorteioSelectedChip = name; clearSorteioChips(); chip.classList.add('selected'); }
+        });
+        wrap.appendChild(chip);
+      });
+    } catch(e) { wrap.innerHTML = ''; }
+  }
+
+  function clearSorteioChips() { document.querySelectorAll('#sorteio-chips .player-chip').forEach(c => c.classList.remove('selected')); }
+
+  function tapFillSorteio(inputId) {
+    if (!sorteioSelectedChip) return;
+    document.getElementById(inputId).value = sorteioSelectedChip;
+    sorteioSelectedChip = null; clearSorteioChips();
+    clearSorteioResult();
+  }
+
+  function clearSorteioResult() {
+    document.getElementById('sorteio-result').classList.remove('show');
+  }
+
+  function sortearDuplas() {
+    const vals = ['s-p1','s-p2','s-p3','s-p4'].map(id => document.getElementById(id).value.trim());
+    if (vals.some(v => !v)) { toast('Preencha os 4 jogadores.', true); return; }
+
+    // Fisher-Yates shuffle → pick pairing
+    const shuffled = [...vals];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    document.getElementById('sr-p1').textContent = shuffled[0];
+    document.getElementById('sr-p2').textContent = shuffled[1];
+    document.getElementById('sr-p3').textContent = shuffled[2];
+    document.getElementById('sr-p4').textContent = shuffled[3];
+
+    const result = document.getElementById('sorteio-result');
+    result.classList.remove('show');
+    // Force reflow for re-animation
+    void result.offsetWidth;
+    result.classList.add('show');
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function usarSorteio() {
+    const p1 = document.getElementById('sr-p1').textContent;
+    const p2 = document.getElementById('sr-p2').textContent;
+    const p3 = document.getElementById('sr-p3').textContent;
+    const p4 = document.getElementById('sr-p4').textContent;
+    if (p1 === '—') { toast('Faça o sorteio primeiro.', true); return; }
+    // Pre-fill Nova Partida fields
+    document.getElementById('p1').value = p1;
+    document.getElementById('p2').value = p2;
+    document.getElementById('p3').value = p3;
+    document.getElementById('p4').value = p4;
+    toast('Duplas copiadas para Nova Partida!');
+    goTo('nova');
   }
 
   // ─── Helpers ─────────────────────────────────────────────
