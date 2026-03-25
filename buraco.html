@@ -231,6 +231,13 @@
     .hc-team:last-child { text-align: right; }
     .hc-vs { color: var(--text-muted); font-weight: 700; text-align: center; font-size: 0.9rem; }
 
+    .edit-btn {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-muted); padding: 3px 10px; border-radius: 6px;
+      font-size: 0.73rem; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .edit-btn:hover { border-color: var(--gold); color: var(--gold-light); }
+
     /* Ranking */
     .rank-num { font-size: 1rem; font-weight: 800; }
     .rank-1 { color: #ffd700; }
@@ -286,6 +293,56 @@
     .winner-box h2 { color: var(--gold-light); font-size: 1.5rem; margin-bottom: 6px; }
     .winner-box .win-players { color: var(--text); font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
     .winner-box .win-score { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px; }
+
+    /* Edit modal */
+    #edit-overlay {
+      display: none; position: fixed; inset: 0; background: #000c;
+      z-index: 200; align-items: center; justify-content: center;
+    }
+    #edit-overlay.show { display: flex; }
+    .edit-box {
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      border: 2px solid var(--border); border-radius: 18px;
+      padding: 28px 26px; max-width: 480px; width: 94%;
+      box-shadow: 0 8px 40px #0009; max-height: 90vh; overflow-y: auto;
+    }
+    .edit-box h3 { color: var(--gold-light); font-size: 1.05rem; margin-bottom: 18px; }
+    .edit-teams { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .edit-team-col h4 { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .edit-team-col input {
+      width: 100%; background: var(--input-bg); border: 1px solid var(--border);
+      color: var(--text); padding: 9px 12px; border-radius: 8px;
+      font-size: 0.9rem; outline: none; margin-bottom: 8px; transition: border-color 0.2s;
+    }
+    .edit-team-col input:focus { border-color: var(--gold); }
+    .edit-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .edit-score-col label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 5px; }
+    .edit-score-col input {
+      width: 100%; background: var(--input-bg); border: 1px solid var(--border);
+      color: var(--text); padding: 9px 12px; border-radius: 8px;
+      font-size: 1.1rem; font-weight: 700; text-align: center; outline: none;
+      transition: border-color 0.2s;
+    }
+    .edit-score-col input:focus { border-color: var(--gold); }
+    .winner-select { margin-bottom: 20px; }
+    .winner-select label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; }
+    .winner-radios { display: flex; gap: 10px; }
+    .winner-radio {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      background: var(--input-bg); border: 2px solid var(--border);
+      border-radius: 8px; padding: 9px; cursor: pointer; font-size: 0.85rem;
+      transition: all 0.15s; font-weight: 600;
+    }
+    .winner-radio input[type=radio] { accent-color: var(--gold); }
+    .winner-radio:has(input:checked) { border-color: var(--gold); background: #1e5028; color: var(--gold-light); }
+    .edit-actions { display: flex; gap: 10px; }
+    .edit-actions .btn-confirm { flex: 1; padding: 11px; }
+    .edit-actions .btn-cancel {
+      flex: 0 0 auto; background: transparent; border: 1px solid var(--border);
+      color: var(--text-muted); padding: 11px 20px; border-radius: 10px;
+      cursor: pointer; font-size: 0.9rem; transition: background 0.2s;
+    }
+    .edit-actions .btn-cancel:hover { background: #1a4a2a; }
 
     /* Toast */
     #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1e4a2e; border: 1px solid var(--border); color: var(--text); padding: 10px 20px; border-radius: 10px; font-size: 0.84rem; transition: transform 0.3s; z-index: 300; white-space: nowrap; pointer-events: none; }
@@ -496,6 +553,54 @@
     <button class="btn-primary" style="margin-top:8px" onclick="closeWinner(); goTo('nova')">Nova Partida</button>
     <button class="btn-outline" onclick="closeWinner(); goTo('historico')">Ver Histórico</button>
     <button class="btn-outline" onclick="closeWinner(); goTo('ranking')">Ver Ranking</button>
+  </div>
+</div>
+
+<!-- ════ EDIT OVERLAY ════ -->
+<div id="edit-overlay">
+  <div class="edit-box">
+    <h3>&#9998; Editar Partida</h3>
+
+    <div class="edit-teams">
+      <div class="edit-team-col">
+        <h4>&#128309; Dupla 1</h4>
+        <input id="ed-p1" type="text" placeholder="Jogador 1" maxlength="20" />
+        <input id="ed-p2" type="text" placeholder="Jogador 2" maxlength="20" />
+      </div>
+      <div class="edit-team-col">
+        <h4>&#128992; Dupla 2</h4>
+        <input id="ed-p3" type="text" placeholder="Jogador 3" maxlength="20" />
+        <input id="ed-p4" type="text" placeholder="Jogador 4" maxlength="20" />
+      </div>
+    </div>
+
+    <div class="edit-scores">
+      <div class="edit-score-col">
+        <label>Placar final — Dupla 1</label>
+        <input id="ed-s1" type="number" min="0" />
+      </div>
+      <div class="edit-score-col">
+        <label>Placar final — Dupla 2</label>
+        <input id="ed-s2" type="number" min="0" />
+      </div>
+    </div>
+
+    <div class="winner-select">
+      <label>Dupla vencedora</label>
+      <div class="winner-radios">
+        <label class="winner-radio">
+          <input type="radio" name="ed-winner" value="1" /> &#127942; Dupla 1
+        </label>
+        <label class="winner-radio">
+          <input type="radio" name="ed-winner" value="2" /> &#127942; Dupla 2
+        </label>
+      </div>
+    </div>
+
+    <div class="edit-actions">
+      <button class="btn-cancel" onclick="closeEdit()">Cancelar</button>
+      <button class="btn-confirm" id="btn-save-edit" onclick="saveEdit()">&#10003; Salvar Alterações</button>
+    </div>
   </div>
 </div>
 
@@ -818,10 +923,14 @@
       list.innerHTML = data.map(p => {
         const w = p.dupla_vencedora;
         const date = new Date(p.data).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        const pd = encodeURIComponent(JSON.stringify(p));
         return `<div class="history-card">
           <div class="hc-header">
             <span class="hc-date">&#128197; ${date}</span>
-            <span class="winner-badge">&#127942; Dupla ${w} venceu</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="winner-badge">&#127942; Dupla ${w} venceu</span>
+              <button class="edit-btn" onclick="openEdit(decodeURIComponent('${pd}'))">&#9998; Editar</button>
+            </div>
           </div>
           <div class="hc-teams">
             <div class="hc-team ${w===1?'winner':''}">
@@ -973,6 +1082,70 @@
     const isOpen = body.style.display !== 'none';
     body.style.display = isOpen ? 'none' : '';
     chev.classList.toggle('open', !isOpen);
+  }
+
+  // ─── Edit modal ──────────────────────────────────────────
+  let editingId = null;
+
+  function openEdit(jsonStr) {
+    const p = JSON.parse(jsonStr);
+    editingId = p.id;
+
+    document.getElementById('ed-p1').value = p.dupla1_jogador1 || '';
+    document.getElementById('ed-p2').value = p.dupla1_jogador2 || '';
+    document.getElementById('ed-p3').value = p.dupla2_jogador1 || '';
+    document.getElementById('ed-p4').value = p.dupla2_jogador2 || '';
+    document.getElementById('ed-s1').value = p.placar_final_dupla1 ?? 0;
+    document.getElementById('ed-s2').value = p.placar_final_dupla2 ?? 0;
+
+    document.querySelectorAll('input[name="ed-winner"]').forEach(r => {
+      r.checked = parseInt(r.value) === p.dupla_vencedora;
+    });
+
+    document.getElementById('edit-overlay').classList.add('show');
+  }
+
+  function closeEdit() {
+    document.getElementById('edit-overlay').classList.remove('show');
+    editingId = null;
+  }
+
+  async function saveEdit() {
+    if (!editingId) return;
+
+    const p1 = document.getElementById('ed-p1').value.trim();
+    const p2 = document.getElementById('ed-p2').value.trim();
+    const p3 = document.getElementById('ed-p3').value.trim();
+    const p4 = document.getElementById('ed-p4').value.trim();
+    const s1 = parseInt(document.getElementById('ed-s1').value);
+    const s2 = parseInt(document.getElementById('ed-s2').value);
+    const winnerEl = document.querySelector('input[name="ed-winner"]:checked');
+
+    if (!p1 || !p2 || !p3 || !p4) { toast('Preencha todos os nomes.', true); return; }
+    if (isNaN(s1) || isNaN(s2))    { toast('Placares inválidos.', true); return; }
+    if (!winnerEl)                  { toast('Selecione a dupla vencedora.', true); return; }
+
+    const btn = document.getElementById('btn-save-edit');
+    btn.disabled = true; btn.textContent = 'Salvando…';
+
+    try {
+      const { error } = await db.from('partidas').update({
+        dupla1_jogador1: p1, dupla1_jogador2: p2,
+        dupla2_jogador1: p3, dupla2_jogador2: p4,
+        placar_final_dupla1: s1, placar_final_dupla2: s2,
+        dupla_vencedora: parseInt(winnerEl.value)
+      }).eq('id', editingId);
+
+      if (error) throw error;
+
+      toast('Partida atualizada!');
+      closeEdit();
+      loadHistory(); // reload list
+    } catch(e) {
+      toast('Erro ao salvar: ' + e.message, true);
+    } finally {
+      btn.disabled = false; btn.textContent = '✓ Salvar Alterações';
+    }
   }
 
   // ─── Helpers ─────────────────────────────────────────────
