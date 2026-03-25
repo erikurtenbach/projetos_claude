@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Placar de Buraco</title>
+  <style>
+    :root {
+      --green: #1a6b3a;
+      --green-light: #2d8f52;
+      --green-dark: #0f4424;
+      --gold: #d4a017;
+      --gold-light: #f0c040;
+      --red: #c0392b;
+      --bg: #0d3320;
+      --card-bg: #1e5c38;
+      --text: #f0ede4;
+      --text-muted: #a0c4b0;
+      --border: #2d7a50;
+      --input-bg: #143d25;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--gold);
+      box-shadow: 0 4px 12px #0008;
+    }
+    header h1 { font-size: 1.6rem; letter-spacing: 1px; color: var(--gold-light); }
+    header h1 span { font-size: 1.1rem; color: var(--text-muted); font-weight: 400; }
+    #btn-reset {
+      background: transparent;
+      border: 1px solid var(--red);
+      color: #e07070;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      transition: background 0.2s;
+    }
+    #btn-reset:hover { background: #c0392b33; }
+
+    /* ── Setup screen ── */
+    #setup-screen {
+      max-width: 480px;
+      margin: 40px auto;
+      padding: 30px 24px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 32px #0006;
+    }
+    #setup-screen h2 { text-align: center; color: var(--gold-light); margin-bottom: 24px; font-size: 1.25rem; }
+
+    .team-setup { margin-bottom: 20px; }
+    .team-setup label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+    .team-setup input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 10px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .team-setup input:focus { border-color: var(--gold); }
+
+    .config-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .config-row > div { flex: 1; }
+    .config-row label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+    .config-row input, .config-row select {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+    }
+    .config-row input:focus, .config-row select:focus { border-color: var(--gold); }
+
+    #btn-start {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: #1a1a00;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: opacity 0.2s;
+    }
+    #btn-start:hover { opacity: 0.9; }
+
+    /* ── Game screen ── */
+    #game-screen { display: none; max-width: 800px; margin: 0 auto; padding: 20px 16px; }
+
+    /* Score cards */
+    .score-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .score-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      padding: 18px 16px;
+      text-align: center;
+      transition: border-color 0.3s;
+    }
+    .score-card.leading { border-color: var(--gold); }
+    .score-card .team-name { font-size: 1rem; color: var(--text-muted); margin-bottom: 4px; }
+    .score-card .total-score {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--gold-light);
+      line-height: 1;
+    }
+    .score-card .to-win { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+    .score-card .round-delta {
+      font-size: 0.85rem;
+      margin-top: 8px;
+      min-height: 20px;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      background: var(--card-bg);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      margin-bottom: 20px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .progress-bar-outer {
+      background: var(--input-bg);
+      border-radius: 8px;
+      height: 14px;
+      display: flex;
+      gap: 4px;
+      overflow: hidden;
+    }
+    .progress-bar-t1 { background: linear-gradient(90deg, #2563eb, #60a5fa); border-radius: 8px 0 0 8px; transition: width 0.5s; min-width: 0; }
+    .progress-bar-t2 { background: linear-gradient(90deg, #d4a017, #f0c040); border-radius: 0 8px 8px 0; transition: width 0.5s; min-width: 0; }
+
+    /* Round input panel */
+    .round-panel {
+      background: var(--card-bg);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 20px 18px;
+      margin-bottom: 20px;
+    }
+    .round-panel h3 { color: var(--gold-light); margin-bottom: 16px; font-size: 1rem; }
+
+    .round-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+    .team-input-col h4 {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
+    .input-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .input-row label { font-size: 0.82rem; color: var(--text-muted); }
+    .input-row input[type="number"] {
+      width: 80px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      text-align: center;
+      outline: none;
+    }
+    .input-row input:focus { border-color: var(--gold); }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .checkbox-row input[type="checkbox"] {
+      accent-color: var(--gold);
+      width: 16px; height: 16px;
+    }
+
+    .round-preview {
+      background: var(--input-bg);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .round-preview span { color: var(--text); font-weight: 600; }
+
+    #btn-add-round {
+      width: 100%;
+      background: linear-gradient(135deg, var(--green-light), var(--green));
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    #btn-add-round:hover { opacity: 0.9; }
+
+    /* History */
+    .history-panel {
+      background: var(--card-bg);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 18px;
+    }
+    .history-panel h3 { color: var(--gold-light); margin-bottom: 14px; font-size: 1rem; }
+
+    .history-table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    th {
+      background: var(--input-bg);
+      color: var(--text-muted);
+      padding: 8px 12px;
+      text-align: center;
+      font-weight: 600;
+    }
+    td {
+      padding: 8px 12px;
+      text-align: center;
+      border-bottom: 1px solid #1e4a2e;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #18482f44; }
+    td.round-num { color: var(--text-muted); font-size: 0.78rem; }
+    td.pos { color: #4ade80; font-weight: 700; }
+    td.neg { color: #f87171; font-weight: 700; }
+    .del-btn {
+      background: none;
+      border: 1px solid #c0392b55;
+      color: #e07070;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+    .del-btn:hover { background: #c0392b33; }
+
+    .no-rounds { text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem; }
+
+    /* Winner overlay */
+    #winner-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #000b;
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    #winner-overlay.show { display: flex; }
+    .winner-box {
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      border: 3px solid var(--gold);
+      border-radius: 20px;
+      padding: 40px 48px;
+      text-align: center;
+      box-shadow: 0 0 60px #d4a01755;
+      max-width: 380px;
+      width: 90%;
+    }
+    .winner-box .trophy { font-size: 4rem; margin-bottom: 12px; }
+    .winner-box h2 { color: var(--gold-light); font-size: 1.6rem; margin-bottom: 8px; }
+    .winner-box p { color: var(--text-muted); margin-bottom: 24px; }
+    .winner-box button {
+      background: var(--gold);
+      border: none;
+      color: #1a1a00;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin: 4px;
+    }
+    .winner-box button.outline {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold-light);
+    }
+
+    @media (max-width: 520px) {
+      header h1 { font-size: 1.2rem; }
+      .total-score { font-size: 2.2rem !important; }
+      .round-grid { grid-template-columns: 1fr; gap: 10px; }
+      .config-row { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>&#9824; Buraco <span>— Placar</span></h1>
+  <button id="btn-reset">&#8635; Nova Partida</button>
+</header>
+
+<!-- SETUP -->
+<div id="setup-screen">
+  <h2>Configurar Partida</h2>
+
+  <div class="team-setup">
+    <label>Time 1 — Nome</label>
+    <input id="name-t1" type="text" placeholder="Ex: Eu &amp; Maria" maxlength="24" />
+    <label>Time 2 — Nome</label>
+    <input id="name-t2" type="text" placeholder="Ex: João &amp; Ana" maxlength="24" />
+  </div>
+
+  <div class="config-row">
+    <div>
+      <label>Meta de pontos</label>
+      <input id="goal" type="number" value="3000" min="500" step="500" />
+    </div>
+    <div>
+      <label>Pontos por buraco limpo</label>
+      <input id="pts-clean" type="number" value="200" min="0" step="50" />
+    </div>
+  </div>
+  <div class="config-row">
+    <div>
+      <label>Pontos por buraco sujo</label>
+      <input id="pts-dirty" type="number" value="100" min="0" step="50" />
+    </div>
+    <div>
+      <label>Bônus por fechar (ganhar mão)</label>
+      <input id="pts-close" type="number" value="100" min="0" step="50" />
+    </div>
+  </div>
+
+  <button id="btn-start">Iniciar Partida</button>
+</div>
+
+<!-- GAME -->
+<div id="game-screen">
+
+  <div class="score-cards">
+    <div class="score-card" id="card-t1">
+      <div class="team-name" id="label-t1">Time 1</div>
+      <div class="total-score" id="score-t1">0</div>
+      <div class="to-win" id="towin-t1"></div>
+      <div class="round-delta" id="delta-t1"></div>
+    </div>
+    <div class="score-card" id="card-t2">
+      <div class="team-name" id="label-t2">Time 2</div>
+      <div class="total-score" id="score-t2">0</div>
+      <div class="to-win" id="towin-t2"></div>
+      <div class="round-delta" id="delta-t2"></div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="prog-label-t1">Time 1</span>
+      <span id="prog-label-t2">Time 2</span>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-t1" id="prog-t1" style="width:0%"></div>
+      <div class="progress-bar-t2" id="prog-t2" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="round-panel">
+    <h3 id="round-title">Rodada 1</h3>
+
+    <div class="round-grid">
+      <!-- Time 1 -->
+      <div class="team-input-col">
+        <h4 id="col-t1">Time 1</h4>
+
+        <div class="input-row">
+          <label>Pontos das cartas</label>
+          <input type="number" id="cards-t1" value="0" min="-9999" />
+        </div>
+        <div class="input-row">
+          <label>Cartas na mão (−)</label>
+          <input type="number" id="hand-t1" value="0" min="0" />
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="clean-t1" /> Buraco limpo (+<span class="val-clean">200</span>)
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="dirty-t1" /> Buraco sujo (+<span class="val-dirty">100</span>)
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="close-t1" /> Fechou a mão (+<span class="val-close">100</span>)
+        </label>
+      </div>
+
+      <!-- Time 2 -->
+      <div class="team-input-col">
+        <h4 id="col-t2">Time 2</h4>
+
+        <div class="input-row">
+          <label>Pontos das cartas</label>
+          <input type="number" id="cards-t2" value="0" min="-9999" />
+        </div>
+        <div class="input-row">
+          <label>Cartas na mão (−)</label>
+          <input type="number" id="hand-t2" value="0" min="0" />
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="clean-t2" /> Buraco limpo (+<span class="val-clean">200</span>)
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="dirty-t2" /> Buraco sujo (+<span class="val-dirty">100</span>)
+        </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="close-t2" /> Fechou a mão (+<span class="val-close">100</span>)
+        </label>
+      </div>
+    </div>
+
+    <div class="round-preview">
+      <div>Resultado — <span id="preview-t1-name">Time 1</span>: <span id="preview-t1">0</span></div>
+      <div>Resultado — <span id="preview-t2-name">Time 2</span>: <span id="preview-t2">0</span></div>
+    </div>
+
+    <button id="btn-add-round">&#43; Confirmar Rodada</button>
+  </div>
+
+  <div class="history-panel">
+    <h3>Histórico de Rodadas</h3>
+    <div class="history-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th id="th-t1">Time 1</th>
+            <th id="th-t2">Time 2</th>
+            <th>Acumulado T1</th>
+            <th>Acumulado T2</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="history-body">
+          <tr><td colspan="6" class="no-rounds">Nenhuma rodada registrada ainda.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- WINNER -->
+<div id="winner-overlay">
+  <div class="winner-box">
+    <div class="trophy">&#127942;</div>
+    <h2 id="winner-name">Time 1</h2>
+    <p id="winner-msg">Atingiu a meta de pontos!</p>
+    <button id="btn-new-game">Nova Partida</button>
+    <button class="outline" id="btn-continue">Continuar mesmo assim</button>
+  </div>
+</div>
+
+<script>
+  // ─── State ───────────────────────────────────────────────
+  let state = {
+    t1: 'Time 1', t2: 'Time 2',
+    goal: 3000, ptsClean: 200, ptsDirty: 100, ptsClose: 100,
+    scores: [],   // [{r1pts, r2pts, r1acc, r2acc}]
+    started: false
+  };
+
+  // ─── Persist ─────────────────────────────────────────────
+  function save() { localStorage.setItem('buraco_state', JSON.stringify(state)); }
+  function load() {
+    try {
+      const s = localStorage.getItem('buraco_state');
+      if (s) state = JSON.parse(s);
+    } catch(e) {}
+  }
+
+  // ─── Setup ───────────────────────────────────────────────
+  document.getElementById('btn-start').addEventListener('click', () => {
+    state.t1 = document.getElementById('name-t1').value.trim() || 'Time 1';
+    state.t2 = document.getElementById('name-t2').value.trim() || 'Time 2';
+    state.goal = parseInt(document.getElementById('goal').value) || 3000;
+    state.ptsClean = parseInt(document.getElementById('pts-clean').value) || 200;
+    state.ptsDirty = parseInt(document.getElementById('pts-dirty').value) || 100;
+    state.ptsClose = parseInt(document.getElementById('pts-close').value) || 100;
+    state.scores = [];
+    state.started = true;
+    save();
+    showGame();
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    if (!confirm('Tem certeza? Isso apagará toda a partida atual.')) return;
+    state = { t1:'Time 1', t2:'Time 2', goal:3000, ptsClean:200, ptsDirty:100, ptsClose:100, scores:[], started:false };
+    save();
+    showSetup();
+  });
+
+  // ─── Show screens ─────────────────────────────────────────
+  function showSetup() {
+    document.getElementById('setup-screen').style.display = '';
+    document.getElementById('game-screen').style.display = 'none';
+    document.getElementById('name-t1').value = state.t1 === 'Time 1' ? '' : state.t1;
+    document.getElementById('name-t2').value = state.t2 === 'Time 2' ? '' : state.t2;
+    document.getElementById('goal').value = state.goal;
+    document.getElementById('pts-clean').value = state.ptsClean;
+    document.getElementById('pts-dirty').value = state.ptsDirty;
+    document.getElementById('pts-close').value = state.ptsClose;
+  }
+
+  function showGame() {
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = '';
+    updateBonusLabels();
+    updateNames();
+    resetRoundInputs();
+    renderScores();
+    renderHistory();
+  }
+
+  function updateBonusLabels() {
+    document.querySelectorAll('.val-clean').forEach(el => el.textContent = state.ptsClean);
+    document.querySelectorAll('.val-dirty').forEach(el => el.textContent = state.ptsDirty);
+    document.querySelectorAll('.val-close').forEach(el => el.textContent = state.ptsClose);
+  }
+
+  function updateNames() {
+    document.getElementById('label-t1').textContent = state.t1;
+    document.getElementById('label-t2').textContent = state.t2;
+    document.getElementById('col-t1').textContent = state.t1;
+    document.getElementById('col-t2').textContent = state.t2;
+    document.getElementById('th-t1').textContent = state.t1;
+    document.getElementById('th-t2').textContent = state.t2;
+    document.getElementById('prog-label-t1').textContent = state.t1;
+    document.getElementById('prog-label-t2').textContent = state.t2;
+    document.getElementById('preview-t1-name').textContent = state.t1;
+    document.getElementById('preview-t2-name').textContent = state.t2;
+  }
+
+  // ─── Round calculation ────────────────────────────────────
+  function calcRoundScore(team) {
+    const cards = parseInt(document.getElementById(`cards-${team}`).value) || 0;
+    const hand  = parseInt(document.getElementById(`hand-${team}`).value)  || 0;
+    const clean = document.getElementById(`clean-${team}`).checked ? state.ptsClean : 0;
+    const dirty = document.getElementById(`dirty-${team}`).checked ? state.ptsDirty : 0;
+    const close = document.getElementById(`close-${team}`).checked ? state.ptsClose : 0;
+    return cards - hand + clean + dirty + close;
+  }
+
+  function updatePreview() {
+    const p1 = calcRoundScore('t1');
+    const p2 = calcRoundScore('t2');
+    document.getElementById('preview-t1').textContent = (p1 >= 0 ? '+' : '') + p1;
+    document.getElementById('preview-t2').textContent = (p2 >= 0 ? '+' : '') + p2;
+    document.getElementById('preview-t1').style.color = p1 >= 0 ? '#4ade80' : '#f87171';
+    document.getElementById('preview-t2').style.color = p2 >= 0 ? '#4ade80' : '#f87171';
+  }
+
+  ['cards-t1','hand-t1','clean-t1','dirty-t1','close-t1',
+   'cards-t2','hand-t2','clean-t2','dirty-t2','close-t2']
+    .forEach(id => document.getElementById(id).addEventListener('input', updatePreview));
+
+  // ─── Add round ───────────────────────────────────────────
+  document.getElementById('btn-add-round').addEventListener('click', () => {
+    const r1 = calcRoundScore('t1');
+    const r2 = calcRoundScore('t2');
+    const prev = state.scores.length ? state.scores[state.scores.length - 1] : { r1acc: 0, r2acc: 0 };
+    state.scores.push({
+      r1pts: r1, r2pts: r2,
+      r1acc: prev.r1acc + r1,
+      r2acc: prev.r2acc + r2
+    });
+    save();
+    resetRoundInputs();
+    renderScores();
+    renderHistory();
+    checkWinner();
+  });
+
+  function resetRoundInputs() {
+    ['t1','t2'].forEach(t => {
+      document.getElementById(`cards-${t}`).value = 0;
+      document.getElementById(`hand-${t}`).value = 0;
+      document.getElementById(`clean-${t}`).checked = false;
+      document.getElementById(`dirty-${t}`).checked = false;
+      document.getElementById(`close-${t}`).checked = false;
+    });
+    updatePreview();
+    document.getElementById('round-title').textContent = `Rodada ${state.scores.length + 1}`;
+  }
+
+  // ─── Render scores ────────────────────────────────────────
+  function renderScores() {
+    const acc1 = state.scores.length ? state.scores[state.scores.length-1].r1acc : 0;
+    const acc2 = state.scores.length ? state.scores[state.scores.length-1].r2acc : 0;
+
+    document.getElementById('score-t1').textContent = acc1;
+    document.getElementById('score-t2').textContent = acc2;
+
+    const left1 = Math.max(0, state.goal - acc1);
+    const left2 = Math.max(0, state.goal - acc2);
+    document.getElementById('towin-t1').textContent = acc1 >= state.goal ? '🏆 Vencedor!' : `faltam ${left1} pts`;
+    document.getElementById('towin-t2').textContent = acc2 >= state.goal ? '🏆 Vencedor!' : `faltam ${left2} pts`;
+
+    // Leading highlight
+    document.getElementById('card-t1').classList.toggle('leading', acc1 >= acc2 && state.scores.length > 0);
+    document.getElementById('card-t2').classList.toggle('leading', acc2 > acc1 && state.scores.length > 0);
+
+    // Last round delta
+    if (state.scores.length) {
+      const last = state.scores[state.scores.length-1];
+      const d1 = last.r1pts;
+      const d2 = last.r2pts;
+      const fmt = v => (v >= 0 ? '+' : '') + v;
+      const col = v => v >= 0 ? '#4ade80' : '#f87171';
+      document.getElementById('delta-t1').innerHTML = `<span style="color:${col(d1)}">última: ${fmt(d1)}</span>`;
+      document.getElementById('delta-t2').innerHTML = `<span style="color:${col(d2)}">última: ${fmt(d2)}</span>`;
+    }
+
+    // Progress
+    const total = acc1 + acc2;
+    const barTotal = Math.max(total, 1);
+    const w1 = Math.max(0, Math.min(100, (acc1 / barTotal) * 100));
+    const w2 = Math.max(0, Math.min(100, (acc2 / barTotal) * 100));
+    document.getElementById('prog-t1').style.width = w1 + '%';
+    document.getElementById('prog-t2').style.width = w2 + '%';
+  }
+
+  // ─── History ─────────────────────────────────────────────
+  function renderHistory() {
+    const tbody = document.getElementById('history-body');
+    if (!state.scores.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="no-rounds">Nenhuma rodada registrada ainda.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = state.scores.map((r, i) => {
+      const c1 = r.r1pts >= 0 ? 'pos' : 'neg';
+      const c2 = r.r2pts >= 0 ? 'pos' : 'neg';
+      const fmt = v => (v >= 0 ? '+' : '') + v;
+      return `<tr>
+        <td class="round-num">${i+1}</td>
+        <td class="${c1}">${fmt(r.r1pts)}</td>
+        <td class="${c2}">${fmt(r.r2pts)}</td>
+        <td>${r.r1acc}</td>
+        <td>${r.r2acc}</td>
+        <td><button class="del-btn" onclick="deleteRound(${i})">✕</button></td>
+      </tr>`;
+    }).reverse().join('');
+  }
+
+  window.deleteRound = function(idx) {
+    if (!confirm(`Remover rodada ${idx + 1}?`)) return;
+    state.scores.splice(idx, 1);
+    // Recalculate accumulators
+    let acc1 = 0, acc2 = 0;
+    state.scores = state.scores.map(r => {
+      acc1 += r.r1pts; acc2 += r.r2pts;
+      return { ...r, r1acc: acc1, r2acc: acc2 };
+    });
+    save();
+    renderScores();
+    renderHistory();
+    document.getElementById('round-title').textContent = `Rodada ${state.scores.length + 1}`;
+  };
+
+  // ─── Winner check ─────────────────────────────────────────
+  function checkWinner() {
+    if (!state.scores.length) return;
+    const last = state.scores[state.scores.length-1];
+    const w1 = last.r1acc >= state.goal;
+    const w2 = last.r2acc >= state.goal;
+    if (!w1 && !w2) return;
+
+    let winnerName;
+    if (w1 && w2) {
+      winnerName = last.r1acc >= last.r2acc ? state.t1 : state.t2;
+    } else {
+      winnerName = w1 ? state.t1 : state.t2;
+    }
+    document.getElementById('winner-name').textContent = winnerName + ' venceu!';
+    document.getElementById('winner-msg').textContent =
+      `Atingiu ${Math.max(last.r1acc, last.r2acc)} pontos (meta: ${state.goal})`;
+    document.getElementById('winner-overlay').classList.add('show');
+  }
+
+  document.getElementById('btn-new-game').addEventListener('click', () => {
+    document.getElementById('winner-overlay').classList.remove('show');
+    state = { t1:'Time 1', t2:'Time 2', goal:3000, ptsClean:200, ptsDirty:100, ptsClose:100, scores:[], started:false };
+    save(); showSetup();
+  });
+
+  document.getElementById('btn-continue').addEventListener('click', () => {
+    document.getElementById('winner-overlay').classList.remove('show');
+  });
+
+  // ─── Init ─────────────────────────────────────────────────
+  load();
+  if (state.started) { showGame(); } else { showSetup(); }
+</script>
+</body>
+</html>
