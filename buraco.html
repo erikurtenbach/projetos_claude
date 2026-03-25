@@ -604,6 +604,38 @@
   );
   const GOAL = 2000;
 
+  // ─── Histórico Legado ────────────────────────────────────
+  // Vitórias anteriores ao sistema digital. Apenas vitórias são
+  // contabilizadas — estatísticas de pontuação usam somente
+  // partidas inseridas manualmente a partir de agora.
+  const LEGACY_DATA = [
+    {
+      players: ['Adriel', 'Erik', 'Guga', 'Renato'],
+      wins: { 'Adriel': 10, 'Erik': 9, 'Guga': 7, 'Renato': 10 }
+    },
+    {
+      players: ['Adriel', 'Erik', 'Guga', 'Mavel'],
+      wins: { 'Adriel': 4, 'Erik': 5, 'Guga': 4, 'Mavel': 1 }
+    },
+    {
+      players: ['Adriel', 'Erik', 'Renato', 'Mavel'],
+      wins: { 'Adriel': 1, 'Erik': 0, 'Renato': 0, 'Mavel': 1 }
+    }
+  ];
+
+  // Retorna { wins, games } do legado para um jogador
+  function getLegacySummary(name) {
+    let wins = 0, games = 0;
+    LEGACY_DATA.forEach(group => {
+      if (name in group.wins) {
+        wins += group.wins[name];
+        const totalGroupWins = Object.values(group.wins).reduce((a,b)=>a+b,0);
+        games += Math.round(totalGroupWins / 2);
+      }
+    });
+    return { wins, games };
+  }
+
   // ─── Game state ──────────────────────────────────────────
   let game = null;
   function saveGame() { if (game) localStorage.setItem('buraco_v3', JSON.stringify(game)); else localStorage.removeItem('buraco_v3'); }
@@ -847,6 +879,15 @@
         if(p.dupla_vencedora===1){players[p.dupla1_jogador1].wins++;players[p.dupla1_jogador2].wins++;}
         if(p.dupla_vencedora===2){players[p.dupla2_jogador1].wins++;players[p.dupla2_jogador2].wins++;}
       });
+      // Mescla vitórias do histórico legado
+      LEGACY_DATA.forEach(group=>{
+        const legGames=Math.round(Object.values(group.wins).reduce((a,b)=>a+b,0)/2);
+        Object.entries(group.wins).forEach(([name,w])=>{
+          ensure(name);
+          players[name].wins+=w;
+          players[name].games+=legGames;
+        });
+      });
       const sorted=Object.entries(players).sort((a,b)=>b[1].wins-a[1].wins||b[1].games-a[1].games);
       const medals=['🥇','🥈','🥉'];
       const tbody=document.getElementById('rank-body'), empty=document.getElementById('rank-empty');
@@ -868,10 +909,20 @@
     const groups={};
     data.forEach(p=>{
       const key=[p.dupla1_jogador1,p.dupla1_jogador2,p.dupla2_jogador1,p.dupla2_jogador2].sort().join('|||');
-      if(!groups[key]) groups[key]={ players:[p.dupla1_jogador1,p.dupla1_jogador2,p.dupla2_jogador1,p.dupla2_jogador2].sort(), games:[] };
+      if(!groups[key]) groups[key]={ players:[p.dupla1_jogador1,p.dupla1_jogador2,p.dupla2_jogador1,p.dupla2_jogador2].sort(), games:[], legacyWins:null, legacyGames:0 };
       groups[key].games.push(p);
     });
-    const sorted=Object.values(groups).sort((a,b)=>b.games.length-a.games.length);
+    // Mescla grupos legados
+    LEGACY_DATA.forEach(legGroup=>{
+      const key=[...legGroup.players].sort().join('|||');
+      const legGames=Math.round(Object.values(legGroup.wins).reduce((a,b)=>a+b,0)/2);
+      if(!groups[key]) groups[key]={ players:[...legGroup.players].sort(), games:[], legacyWins:legGroup.wins, legacyGames:legGames };
+      else { groups[key].legacyWins=legGroup.wins; groups[key].legacyGames=legGames; }
+    });
+    const sorted=Object.values(groups).sort((a,b)=>{
+      const ta=(b.games.length+(b.legacyGames||0))-(a.games.length+(a.legacyGames||0));
+      return ta;
+    });
     if (!sorted.length) { empty.style.display='block'; return; }
     empty.style.display='none';
     sorted.forEach((group,gi)=>{
@@ -882,12 +933,20 @@
         if(p.dupla_vencedora===1){gp[p.dupla1_jogador1].wins++;gp[p.dupla1_jogador2].wins++;}
         if(p.dupla_vencedora===2){gp[p.dupla2_jogador1].wins++;gp[p.dupla2_jogador2].wins++;}
       });
+      // Adiciona legado ao grupo
+      if (group.legacyWins) {
+        Object.entries(group.legacyWins).forEach(([name,w])=>{
+          if(gp[name]){ gp[name].wins+=w; gp[name].games+=group.legacyGames; }
+        });
+      }
       const gSorted=Object.entries(gp).sort((a,b)=>b[1].wins-a[1].wins||b[1].games-a[1].games);
       const medals=['🥇','🥈','🥉','4️⃣'];
       const bodyId=`gb-${gi}`, chevId=`gc-${gi}`;
+      const totalGames=group.games.length+group.legacyGames;
+      const legLabel=group.legacyGames>0?` <span style="font-size:0.7rem;color:var(--text-muted);opacity:0.7">(+${group.legacyGames} leg.)</span>`:'';
       const sec=document.createElement('div'); sec.className='group-section';
       sec.innerHTML=`<div class="group-header" onclick="toggleGroup('${bodyId}','${chevId}')">
-        <div class="group-title">${group.players.map(esc).join(' · ')}<span>${group.games.length} partida${group.games.length!==1?'s':''}</span></div>
+        <div class="group-title">${group.players.map(esc).join(' · ')}<span>${totalGames} partida${totalGames!==1?'s':''}${group.legacyGames>0?' (inclui legado)':''}</span></div>
         <span class="group-chevron" id="${chevId}">▼</span>
       </div>
       <div class="group-body" id="${bodyId}">
@@ -969,23 +1028,33 @@
       });
     });
 
-    const total=partidas.length;
-    const winPct=total?Math.round(wins/total*100):0;
-    const avgScore=total?Math.round(totalMyScore/total):0;
+    // Partidas reais: estatísticas de pontuação
+    const realTotal=partidas.length;
+    const avgScore=realTotal?Math.round(totalMyScore/realTotal):0;
     const bestScore=scores.length?Math.max(...scores):0;
-    const avgMargin=total?Math.round(margins.reduce((a,b)=>a+b,0)/total):0;
+    const avgMargin=realTotal?Math.round(margins.reduce((a,b)=>a+b,0)/realTotal):0;
+    const avgOppScore=Math.round(totalOppScore/(realTotal||1));
 
-    document.getElementById('ps-name').textContent='&#128101; '+name;
+    // Inclui legado para vitórias e contagem de partidas
+    const leg=getLegacySummary(name);
+    const totalWins=wins+leg.wins;
+    const totalGames=realTotal+leg.games;
+    const totalLosses=totalGames-totalWins;
+    const winPct=totalGames?Math.round(totalWins/totalGames*100):0;
+
+    document.getElementById('ps-name').textContent='👤 '+name;
     document.getElementById('ps-cards').innerHTML=`
-      <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Partidas</div></div>
-      <div class="stat-card"><div class="stat-val">${wins}</div><div class="stat-lbl">Vitórias</div></div>
+      <div class="stat-card"><div class="stat-val">${totalGames}</div><div class="stat-lbl">Partidas</div></div>
+      <div class="stat-card"><div class="stat-val">${totalWins}</div><div class="stat-lbl">Vitórias</div></div>
       <div class="stat-card"><div class="stat-val">${winPct}%</div><div class="stat-lbl">Win Rate</div></div>
-      <div class="stat-card"><div class="stat-val">${avgScore}</div><div class="stat-lbl">Média de Pts</div></div>
-      <div class="stat-card"><div class="stat-val">${bestScore}</div><div class="stat-lbl">Maior Placar</div></div>
-      <div class="stat-card"><div class="stat-val">${total-wins}</div><div class="stat-lbl">Derrotas</div></div>
-      <div class="stat-card"><div class="stat-val">${avgMargin>0?'+':''}${avgMargin}</div><div class="stat-lbl">Saldo Médio</div></div>
-      <div class="stat-card"><div class="stat-val">${Math.round(totalOppScore/(total||1))}</div><div class="stat-lbl">Média Adv.</div></div>
+      <div class="stat-card"><div class="stat-val">${avgScore||'–'}</div><div class="stat-lbl">Média de Pts${realTotal?'':' *'}</div></div>
+      <div class="stat-card"><div class="stat-val">${bestScore||'–'}</div><div class="stat-lbl">Maior Placar</div></div>
+      <div class="stat-card"><div class="stat-val">${totalLosses}</div><div class="stat-lbl">Derrotas</div></div>
+      <div class="stat-card"><div class="stat-val">${realTotal?`${avgMargin>0?'+':''}${avgMargin}`:'–'}</div><div class="stat-lbl">Saldo Médio</div></div>
+      <div class="stat-card"><div class="stat-val">${realTotal?avgOppScore:'–'}</div><div class="stat-lbl">Média Adv.</div></div>
     `;
+    if (leg.games>0) document.getElementById('ps-cards').innerHTML +=
+      `<p style="grid-column:1/-1;font-size:0.72rem;color:var(--text-muted);margin-top:4px;text-align:center">★ Inclui ${leg.games} partidas e ${leg.wins} vitórias do histórico legado. Estatísticas de pontuação baseadas em ${realTotal} partida${realTotal!==1?'s':''} com placar registrado.</p>`;
 
     // Partners
     const partnersSorted=Object.entries(partners).sort((a,b)=>b[1].games-a[1].games);
