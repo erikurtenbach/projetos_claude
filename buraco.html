@@ -3,59 +3,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Buraco — Placar</title>
+  <title>ATP 2000 — Buraco</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --green: #1a6b3a;
-      --green-light: #2d8f52;
-      --green-dark: #0f4424;
-      --gold: #d4a017;
-      --gold-light: #f0c040;
-      --red: #c0392b;
-      --bg: #0d3320;
-      --card-bg: #1e5c38;
-      --text: #f0ede4;
-      --text-muted: #a0c4b0;
-      --border: #2d7a50;
-      --input-bg: #143d25;
+      --green: #1a6b3a; --green-light: #2d8f52; --green-dark: #0f4424;
+      --gold: #d4a017; --gold-light: #f0c040;
+      --red: #c0392b; --bg: #0d3320; --card-bg: #1e5c38;
+      --text: #f0ede4; --text-muted: #a0c4b0; --border: #2d7a50; --input-bg: #143d25;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    /* Header */
+    /* ── Header ── */
     header {
       background: linear-gradient(135deg, var(--green-dark), var(--green));
-      padding: 14px 20px 0;
+      padding: 10px 20px 0;
       border-bottom: 2px solid var(--gold);
       position: sticky; top: 0; z-index: 50;
       box-shadow: 0 4px 16px #0008;
     }
-    .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    header h1 { font-size: 1.4rem; color: var(--gold-light); letter-spacing: 1px; }
-    header h1 span { font-size: 0.88rem; color: var(--text-muted); font-weight: 400; }
+    .header-top { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+    .header-text h1 { font-size: 1.3rem; color: var(--gold-light); letter-spacing: 2px; font-family: Georgia, serif; }
+    .header-text p { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
 
-    /* Nav */
-    .nav-tabs { display: flex; gap: 2px; }
+    /* ── Nav ── */
+    .nav-tabs { display: flex; gap: 2px; overflow-x: auto; }
+    .nav-tabs::-webkit-scrollbar { display: none; }
     .nav-tab {
-      padding: 8px 16px; border-radius: 8px 8px 0 0; border: none; cursor: pointer;
-      font-size: 0.82rem; font-weight: 600; background: rgba(255,255,255,0.07);
-      color: var(--text-muted); transition: all 0.2s; letter-spacing: 0.2px;
+      padding: 8px 14px; border-radius: 8px 8px 0 0; border: none; cursor: pointer;
+      font-size: 0.8rem; font-weight: 600; background: rgba(255,255,255,0.07);
+      color: var(--text-muted); transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
     }
     .nav-tab:hover { background: rgba(255,255,255,0.14); color: var(--text); }
     .nav-tab.active { background: var(--gold); color: #1a1a00; }
     .dot { display: inline-block; width: 6px; height: 6px; background: #4ade80; border-radius: 50%; margin-left: 5px; vertical-align: middle; }
 
-    /* Screens */
+    /* ── Screens ── */
     .screen { display: none; max-width: 860px; margin: 0 auto; padding: 20px 16px 40px; }
     .screen.active { display: block; }
 
-    /* Panel */
+    /* ── Panel ── */
     .panel { background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border); padding: 20px 18px; margin-bottom: 18px; }
     .panel-title { color: var(--gold-light); font-size: 0.95rem; font-weight: 700; margin-bottom: 16px; }
 
-    /* Inputs */
+    /* ── Inputs ── */
     .input-group { margin-bottom: 12px; }
     .input-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
     .input-group input {
@@ -65,116 +57,39 @@
     .input-group input:focus { border-color: var(--gold); }
     .input-group input.drop-hover { border-color: var(--gold); background: #1e5c2a; }
 
-    /* Buttons */
-    .btn-primary {
-      width: 100%; background: linear-gradient(135deg, var(--gold), var(--gold-light));
-      color: #1a1a00; border: none; padding: 13px; border-radius: 10px;
-      font-size: 1rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s;
-    }
+    /* ── Buttons ── */
+    .btn-primary { width: 100%; background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #1a1a00; border: none; padding: 13px; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
     .btn-primary:hover { opacity: 0.88; }
     .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
-    .btn-confirm {
-      width: 100%; background: linear-gradient(135deg, var(--green-light), var(--green));
-      color: #fff; border: none; padding: 13px; border-radius: 10px;
-      font-size: 1rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s;
-    }
+    .btn-confirm { width: 100%; background: linear-gradient(135deg, var(--green-light), var(--green)); color: #fff; border: none; padding: 13px; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
     .btn-confirm:hover { opacity: 0.88; }
     .btn-confirm:disabled { opacity: 0.45; cursor: not-allowed; }
-    .btn-outline {
-      width: 100%; background: transparent; border: 1px solid var(--gold);
-      color: var(--gold-light); padding: 11px; border-radius: 10px;
-      font-size: 0.9rem; cursor: pointer; margin-top: 8px; transition: background 0.2s;
-    }
+    .btn-outline { width: 100%; background: transparent; border: 1px solid var(--gold); color: var(--gold-light); padding: 11px; border-radius: 10px; font-size: 0.9rem; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
     .btn-outline:hover { background: rgba(212,160,23,0.1); }
+    .btn-danger { width: 100%; background: transparent; border: 1px solid #c0392b; color: #e07070; padding: 11px; border-radius: 10px; font-size: 0.88rem; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+    .btn-danger:hover { background: #c0392b22; }
+    .btn-danger:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* ── Nova Partida layout ── */
-    .setup-layout {
-      display: grid;
-      grid-template-columns: 180px 1fr;
-      gap: 16px;
-      align-items: start;
-    }
-
-    /* Known players sidebar */
-    .known-sidebar {
-      background: var(--card-bg);
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      padding: 14px;
-      position: sticky;
-      top: 90px;
-    }
-    .known-sidebar h3 {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
-    }
-    .known-sidebar .hint {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-      line-height: 1.4;
-      opacity: 0.8;
-    }
+    /* ── Setup layout ── */
+    .setup-layout { display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: start; }
+    .known-sidebar { background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border); padding: 14px; position: sticky; top: 90px; }
+    .known-sidebar h3 { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .known-sidebar .hint { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4; opacity: 0.8; }
     .chips-list { display: flex; flex-direction: column; gap: 6px; }
-
-    .player-chip {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 8px 10px;
-      border-radius: 8px;
-      font-size: 0.83rem;
-      cursor: grab;
-      user-select: none;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .player-chip { background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 8px; font-size: 0.83rem; cursor: grab; user-select: none; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
     .player-chip::before { content: '⠿'; color: var(--text-muted); font-size: 0.75rem; flex-shrink: 0; }
     .player-chip:hover { border-color: var(--gold); background: #1a4e2e; }
-    .player-chip.selected {
-      border-color: var(--gold);
-      background: #2a5c1a;
-      box-shadow: 0 0 0 2px var(--gold-light)44;
-      color: var(--gold-light);
-    }
+    .player-chip.selected { border-color: var(--gold); background: #2a5c1a; box-shadow: 0 0 0 2px #f0c04044; color: var(--gold-light); }
     .player-chip:active { cursor: grabbing; }
-
-    .known-sidebar .no-history {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      font-style: italic;
-      text-align: center;
-      padding: 10px 0;
-    }
-
-    /* Mobile: sidebar on top as horizontal strip */
-    @media (max-width: 620px) {
-      .setup-layout { grid-template-columns: 1fr; }
-      .known-sidebar { position: static; }
-      .chips-list { flex-direction: row; flex-wrap: wrap; }
-      .player-chip { flex-direction: row; }
-    }
-
-    .active-game-warning {
-      background: #2d3a1a; border: 1px solid #6a8a2a; border-radius: 8px;
-      padding: 10px 14px; font-size: 0.82rem; color: #c8e060; margin-bottom: 14px; display: none;
-    }
-
+    .known-sidebar .no-history { font-size: 0.78rem; color: var(--text-muted); font-style: italic; text-align: center; padding: 10px 0; }
+    .active-game-warning { background: #2d3a1a; border: 1px solid #6a8a2a; border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: #c8e060; margin-bottom: 14px; display: none; }
     .players-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
     .team-section { background: var(--input-bg); border-radius: 10px; padding: 14px; border: 1px solid var(--border); }
     .team-section h4 { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-    /* Game screen */
+    /* ── Game ── */
     .score-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
-    .score-card {
-      background: var(--card-bg); border-radius: 14px; border: 2px solid var(--border);
-      padding: 16px; text-align: center; transition: border-color 0.3s, box-shadow 0.3s;
-    }
+    .score-card { background: var(--card-bg); border-radius: 14px; border: 2px solid var(--border); padding: 16px; text-align: center; transition: border-color 0.3s, box-shadow 0.3s; }
     .score-card.leading { border-color: var(--gold); box-shadow: 0 0 24px #d4a01720; }
     .score-card .team-label { font-size: 0.82rem; color: var(--gold-light); font-weight: 700; margin-bottom: 3px; }
     .score-card .players-label { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4; }
@@ -184,25 +99,13 @@
     .prog-inner { height: 100%; border-radius: 6px; transition: width 0.5s; }
     .prog-t1 { background: linear-gradient(90deg, #2563eb, #60a5fa); }
     .prog-t2 { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
-
     .round-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
     .round-input-col h4 { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; text-align: center; }
-    .round-input-col input {
-      width: 100%; background: var(--input-bg); border: 2px solid var(--border);
-      color: var(--text); padding: 12px; border-radius: 10px; font-size: 1.6rem;
-      text-align: center; font-weight: 700; outline: none; transition: border-color 0.2s;
-      -moz-appearance: textfield;
-      appearance: textfield;
-    }
-    .round-input-col input::-webkit-outer-spin-button,
-    .round-input-col input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .round-input-col input { width: 100%; background: var(--input-bg); border: 2px solid var(--border); color: var(--text); padding: 12px; border-radius: 10px; font-size: 1.6rem; text-align: center; font-weight: 700; outline: none; transition: border-color 0.2s; -moz-appearance: textfield; appearance: textfield; }
+    .round-input-col input::-webkit-outer-spin-button, .round-input-col input::-webkit-inner-spin-button { -webkit-appearance: none; }
     .round-input-col input:focus { border-color: var(--gold); }
-    .round-preview {
-      display: flex; justify-content: space-between; background: var(--input-bg);
-      border-radius: 8px; padding: 8px 14px; margin-bottom: 12px; font-size: 0.82rem; color: var(--text-muted);
-    }
+    .round-preview { display: flex; justify-content: space-between; background: var(--input-bg); border-radius: 8px; padding: 8px 14px; margin-bottom: 12px; font-size: 0.82rem; color: var(--text-muted); }
     .round-preview span { font-weight: 700; color: var(--text); }
-
     .rounds-scroll { max-height: 220px; overflow-y: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
     th { background: var(--input-bg); color: var(--text-muted); padding: 7px 10px; text-align: center; font-weight: 600; position: sticky; top: 0; }
@@ -212,17 +115,18 @@
     .td-pos { color: #4ade80; font-weight: 700; }
     .td-neg { color: #f87171; font-weight: 700; }
     .td-muted { color: var(--text-muted); font-size: 0.78rem; }
-
     .empty-state { text-align: center; color: var(--text-muted); padding: 28px; font-size: 0.85rem; }
     .no-game-msg { text-align: center; padding: 60px 20px; color: var(--text-muted); }
     .no-game-msg p { margin-bottom: 16px; font-size: 0.95rem; }
     .no-game-msg button { background: var(--gold); color: #1a1a00; border: none; padding: 10px 28px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
 
-    /* History */
+    /* ── History ── */
     .history-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); padding: 14px 16px; margin-bottom: 12px; }
-    .hc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .hc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 6px; }
     .hc-date { font-size: 0.76rem; color: var(--text-muted); }
     .winner-badge { background: var(--gold); color: #1a1a00; padding: 3px 10px; border-radius: 12px; font-size: 0.73rem; font-weight: 700; }
+    .edit-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 3px 10px; border-radius: 6px; font-size: 0.73rem; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .edit-btn:hover { border-color: var(--gold); color: var(--gold-light); }
     .hc-teams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; }
     .hc-team .hc-name { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
     .hc-team .hc-score { font-size: 1.4rem; font-weight: 800; color: var(--text-muted); }
@@ -231,61 +135,84 @@
     .hc-team:last-child { text-align: right; }
     .hc-vs { color: var(--text-muted); font-weight: 700; text-align: center; font-size: 0.9rem; }
 
-    .edit-btn {
-      background: transparent; border: 1px solid var(--border);
-      color: var(--text-muted); padding: 3px 10px; border-radius: 6px;
-      font-size: 0.73rem; cursor: pointer; transition: all 0.15s; white-space: nowrap;
-    }
-    .edit-btn:hover { border-color: var(--gold); color: var(--gold-light); }
-
-    /* Ranking */
+    /* ── Ranking ── */
     .rank-num { font-size: 1rem; font-weight: 800; }
-    .rank-1 { color: #ffd700; }
-    .rank-2 { color: #c0c0c0; }
-    .rank-3 { color: #cd7f32; }
-
-    /* Group ranking */
+    .rank-1 { color: #ffd700; } .rank-2 { color: #c0c0c0; } .rank-3 { color: #cd7f32; }
     .group-section { margin-bottom: 14px; }
-    .group-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--input-bg);
-      border-radius: 10px 10px 0 0;
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-bottom: none;
-      cursor: pointer;
-      user-select: none;
-    }
+    .group-header { display: flex; align-items: center; justify-content: space-between; background: var(--input-bg); border-radius: 10px 10px 0 0; padding: 10px 14px; border: 1px solid var(--border); border-bottom: none; cursor: pointer; user-select: none; }
     .group-header:hover { background: #1a4e2e; }
     .group-title { font-size: 0.83rem; color: var(--text); font-weight: 600; }
     .group-title span { color: var(--text-muted); font-weight: 400; font-size: 0.76rem; margin-left: 6px; }
     .group-chevron { color: var(--text-muted); font-size: 0.8rem; transition: transform 0.2s; }
     .group-chevron.open { transform: rotate(180deg); }
-    .group-body {
-      border: 1px solid var(--border);
-      border-top: none;
-      border-radius: 0 0 10px 10px;
-      overflow: hidden;
+    .group-body { border: 1px solid var(--border); border-top: none; border-radius: 0 0 10px 10px; overflow: hidden; }
+
+    /* ── Player stats screen ── */
+    .player-select-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .player-btn {
+      background: var(--input-bg); border: 1px solid var(--border); color: var(--text);
+      padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem;
+      transition: all 0.15s; font-weight: 500;
     }
+    .player-btn:hover { border-color: var(--gold); color: var(--gold-light); }
+    .player-btn.active { background: var(--gold); border-color: var(--gold); color: #1a1a00; font-weight: 700; }
 
-    .rank-section-label {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--text-muted);
-      margin: 20px 0 10px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+    .stat-card { background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; }
+    .stat-card .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--gold-light); line-height: 1; }
+    .stat-card .stat-lbl { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+    .stat-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+
+    .mini-table-wrap { overflow-x: auto; }
+    .no-player-msg { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 0.9rem; }
+
+    .recent-game {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; border-radius: 8px; margin-bottom: 6px;
+      background: var(--input-bg); border: 1px solid var(--border); font-size: 0.83rem;
     }
+    .recent-game .rg-date { color: var(--text-muted); font-size: 0.75rem; }
+    .recent-game .rg-result { font-weight: 700; font-size: 0.88rem; }
+    .rg-win { color: #4ade80; }
+    .rg-loss { color: #f87171; }
+    .recent-game .rg-score { color: var(--text-muted); font-size: 0.8rem; }
+    .recent-game .rg-partner { color: var(--text-muted); font-size: 0.75rem; margin-top: 2px; }
 
-    /* Loading */
-    .loading { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 48px; color: var(--text-muted); font-size: 0.88rem; }
-    .spinner { width: 22px; height: 22px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── Edit modal ── */
+    #edit-overlay { display: none; position: fixed; inset: 0; background: #000c; z-index: 200; align-items: center; justify-content: center; }
+    #edit-overlay.show { display: flex; }
+    .edit-box { background: linear-gradient(135deg, var(--green-dark), var(--green)); border: 2px solid var(--border); border-radius: 18px; padding: 28px 26px; max-width: 480px; width: 94%; box-shadow: 0 8px 40px #0009; max-height: 90vh; overflow-y: auto; }
+    .edit-box h3 { color: var(--gold-light); font-size: 1.05rem; margin-bottom: 18px; }
+    .edit-teams { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .edit-team-col h4 { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .edit-team-col input { width: 100%; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 9px 12px; border-radius: 8px; font-size: 0.9rem; outline: none; margin-bottom: 8px; transition: border-color 0.2s; }
+    .edit-team-col input:focus { border-color: var(--gold); }
+    .edit-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .edit-score-col label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 5px; }
+    .edit-score-col input { width: 100%; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 9px 12px; border-radius: 8px; font-size: 1.1rem; font-weight: 700; text-align: center; outline: none; transition: border-color 0.2s; }
+    .edit-score-col input:focus { border-color: var(--gold); }
+    .winner-select { margin-bottom: 16px; }
+    .winner-select label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; }
+    .winner-radios { display: flex; gap: 10px; }
+    .winner-radio { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--input-bg); border: 2px solid var(--border); border-radius: 8px; padding: 9px; cursor: pointer; font-size: 0.85rem; transition: all 0.15s; font-weight: 600; }
+    .winner-radio input[type=radio] { accent-color: var(--gold); }
+    .winner-radio:has(input:checked) { border-color: var(--gold); background: #1e5028; color: var(--gold-light); }
+    .edit-actions { display: flex; gap: 10px; }
+    .edit-actions .btn-confirm { flex: 1; padding: 11px; }
+    .edit-actions .btn-cancel { flex: 0 0 auto; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 11px 20px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
+    .edit-actions .btn-cancel:hover { background: #1a4a2a; }
+    .edit-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+    .delete-confirm-row { display: none; background: #3a1010; border: 1px solid #c0392b55; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; font-size: 0.83rem; color: #e07070; }
+    .delete-confirm-row.show { display: block; }
+    .delete-confirm-row p { margin-bottom: 10px; }
+    .delete-confirm-row .dc-btns { display: flex; gap: 8px; }
+    .delete-confirm-row .dc-btns button { flex: 1; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.83rem; font-weight: 600; border: none; }
+    .dc-yes { background: var(--red); color: #fff; }
+    .dc-yes:disabled { opacity: 0.5; cursor: not-allowed; }
+    .dc-no { background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border) !important; }
 
-    /* Winner overlay */
+    /* ── Winner overlay ── */
     #winner-overlay { display: none; position: fixed; inset: 0; background: #000c; z-index: 200; align-items: center; justify-content: center; }
     #winner-overlay.show { display: flex; }
     .winner-box { background: linear-gradient(135deg, var(--green-dark), var(--green)); border: 3px solid var(--gold); border-radius: 20px; padding: 40px 36px; text-align: center; max-width: 370px; width: 90%; box-shadow: 0 0 80px #d4a01730; }
@@ -294,66 +221,23 @@
     .winner-box .win-players { color: var(--text); font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
     .winner-box .win-score { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px; }
 
-    /* Edit modal */
-    #edit-overlay {
-      display: none; position: fixed; inset: 0; background: #000c;
-      z-index: 200; align-items: center; justify-content: center;
-    }
-    #edit-overlay.show { display: flex; }
-    .edit-box {
-      background: linear-gradient(135deg, var(--green-dark), var(--green));
-      border: 2px solid var(--border); border-radius: 18px;
-      padding: 28px 26px; max-width: 480px; width: 94%;
-      box-shadow: 0 8px 40px #0009; max-height: 90vh; overflow-y: auto;
-    }
-    .edit-box h3 { color: var(--gold-light); font-size: 1.05rem; margin-bottom: 18px; }
-    .edit-teams { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
-    .edit-team-col h4 { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-    .edit-team-col input {
-      width: 100%; background: var(--input-bg); border: 1px solid var(--border);
-      color: var(--text); padding: 9px 12px; border-radius: 8px;
-      font-size: 0.9rem; outline: none; margin-bottom: 8px; transition: border-color 0.2s;
-    }
-    .edit-team-col input:focus { border-color: var(--gold); }
-    .edit-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
-    .edit-score-col label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 5px; }
-    .edit-score-col input {
-      width: 100%; background: var(--input-bg); border: 1px solid var(--border);
-      color: var(--text); padding: 9px 12px; border-radius: 8px;
-      font-size: 1.1rem; font-weight: 700; text-align: center; outline: none;
-      transition: border-color 0.2s;
-    }
-    .edit-score-col input:focus { border-color: var(--gold); }
-    .winner-select { margin-bottom: 20px; }
-    .winner-select label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; }
-    .winner-radios { display: flex; gap: 10px; }
-    .winner-radio {
-      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
-      background: var(--input-bg); border: 2px solid var(--border);
-      border-radius: 8px; padding: 9px; cursor: pointer; font-size: 0.85rem;
-      transition: all 0.15s; font-weight: 600;
-    }
-    .winner-radio input[type=radio] { accent-color: var(--gold); }
-    .winner-radio:has(input:checked) { border-color: var(--gold); background: #1e5028; color: var(--gold-light); }
-    .edit-actions { display: flex; gap: 10px; }
-    .edit-actions .btn-confirm { flex: 1; padding: 11px; }
-    .edit-actions .btn-cancel {
-      flex: 0 0 auto; background: transparent; border: 1px solid var(--border);
-      color: var(--text-muted); padding: 11px 20px; border-radius: 10px;
-      cursor: pointer; font-size: 0.9rem; transition: background 0.2s;
-    }
-    .edit-actions .btn-cancel:hover { background: #1a4a2a; }
-
-    /* Toast */
+    /* ── Loading / Toast ── */
+    .loading { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 48px; color: var(--text-muted); font-size: 0.88rem; }
+    .spinner { width: 22px; height: 22px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
     #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1e4a2e; border: 1px solid var(--border); color: var(--text); padding: 10px 20px; border-radius: 10px; font-size: 0.84rem; transition: transform 0.3s; z-index: 300; white-space: nowrap; pointer-events: none; }
     #toast.show { transform: translateX(-50%) translateY(0); }
     #toast.error { background: #4a1e1e; border-color: #c0392b; }
 
-    @media (max-width: 500px) {
-      .players-grid { grid-template-columns: 1fr; }
+    @media (max-width: 600px) {
+      .setup-layout { grid-template-columns: 1fr; }
+      .known-sidebar { position: static; }
+      .chips-list { flex-direction: row; flex-wrap: wrap; }
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+      .stat-grid-2 { grid-template-columns: 1fr; }
       .score-num { font-size: 2.4rem !important; }
-      .nav-tab { padding: 7px 10px; font-size: 0.76rem; }
-      header h1 { font-size: 1.15rem; }
+      .nav-tab { padding: 7px 10px; font-size: 0.75rem; }
+      header h1 { font-size: 1.1rem; }
     }
   </style>
 </head>
@@ -361,77 +245,87 @@
 
 <header>
   <div class="header-top">
-    <h1>&#9824; Buraco <span>— Placar Digital</span></h1>
+    <!-- ATP 2000 Logo -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 84" width="54" height="46" aria-label="ATP 2000">
+      <!-- Shadow -->
+      <ellipse cx="50" cy="82" rx="32" ry="4" fill="#00000033"/>
+      <!-- Shield body -->
+      <path d="M50,3 L94,17 L94,50 Q94,75 50,83 Q6,75 6,50 L6,17 Z" fill="#0a3018"/>
+      <!-- Shield gradient overlay -->
+      <path d="M50,3 L94,17 L94,50 Q94,75 50,83 Q6,75 6,50 L6,17 Z" fill="url(#sg)"/>
+      <!-- Gold border -->
+      <path d="M50,3 L94,17 L94,50 Q94,75 50,83 Q6,75 6,50 L6,17 Z" fill="none" stroke="#d4a017" stroke-width="2.5"/>
+      <!-- Inner border -->
+      <path d="M50,9 L88,21 L88,50 Q88,71 50,78 Q12,71 12,50 L12,21 Z" fill="none" stroke="#d4a01744" stroke-width="1"/>
+      <!-- Horizontal rule -->
+      <line x1="16" y1="47" x2="84" y2="47" stroke="#d4a017" stroke-width="0.8" opacity="0.5"/>
+      <!-- Crown -->
+      <g transform="translate(50,14)">
+        <polygon points="-9,8 -12,0 -6,4 0,-3 6,4 12,0 9,8" fill="#d4a017"/>
+        <rect x="-10" y="8" width="20" height="4" rx="1" fill="#d4a017"/>
+        <circle cx="-9" cy="0" r="1.8" fill="#f0c040"/>
+        <circle cx="0" cy="-3" r="1.8" fill="#f0c040"/>
+        <circle cx="9" cy="0" r="1.8" fill="#f0c040"/>
+      </g>
+      <!-- ATP text -->
+      <text x="50" y="42" text-anchor="middle" font-size="17" fill="#f0c040" font-weight="900" font-family="Georgia,serif" letter-spacing="4">ATP</text>
+      <!-- 2000 text -->
+      <text x="50" y="55" text-anchor="middle" font-size="9.5" fill="#d4a017" font-weight="700" font-family="Georgia,serif" letter-spacing="3">2000</text>
+      <!-- Card suits -->
+      <text x="23" y="70" text-anchor="middle" font-size="10" fill="#d4a017" font-family="Arial">♠</text>
+      <text x="36" y="70" text-anchor="middle" font-size="10" fill="#c0392b" font-family="Arial">♥</text>
+      <text x="64" y="70" text-anchor="middle" font-size="10" fill="#c0392b" font-family="Arial">♦</text>
+      <text x="77" y="70" text-anchor="middle" font-size="10" fill="#d4a017" font-family="Arial">♣</text>
+      <!-- Defs -->
+      <defs>
+        <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.06"/>
+          <stop offset="100%" stop-color="#000000" stop-opacity="0.1"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="header-text">
+      <h1>ATP 2000</h1>
+      <p>&#9824; Buraco — Placar Digital</p>
+    </div>
   </div>
   <div class="nav-tabs">
-    <button class="nav-tab" id="tab-nova" onclick="goTo('nova')">Nova Partida</button>
-    <button class="nav-tab" id="tab-jogo" onclick="goTo('jogo')">
-      Placar <span id="dot-jogo" class="dot" style="display:none"></span>
-    </button>
+    <button class="nav-tab" id="tab-nova"      onclick="goTo('nova')">Nova Partida</button>
+    <button class="nav-tab" id="tab-jogo"      onclick="goTo('jogo')">Placar <span id="dot-jogo" class="dot" style="display:none"></span></button>
     <button class="nav-tab" id="tab-historico" onclick="goTo('historico')">Histórico</button>
-    <button class="nav-tab" id="tab-ranking" onclick="goTo('ranking')">Ranking</button>
+    <button class="nav-tab" id="tab-ranking"   onclick="goTo('ranking')">Ranking</button>
+    <button class="nav-tab" id="tab-jogadores" onclick="goTo('jogadores')">Jogadores</button>
   </div>
 </header>
 
 <!-- ════ NOVA PARTIDA ════ -->
 <div class="screen" id="screen-nova">
-
-  <div class="active-game-warning" id="warn-active">
-    ⚠️ Há uma partida em andamento. Ao iniciar uma nova, a atual será abandonada.
-  </div>
-
+  <div class="active-game-warning" id="warn-active">⚠️ Há uma partida em andamento. Ao iniciar uma nova, a atual será abandonada.</div>
   <div class="setup-layout">
-
-    <!-- Sidebar: jogadores conhecidos -->
     <div class="known-sidebar">
       <h3>&#128101; Jogadores</h3>
-      <p class="hint">Arraste ou toque para preencher os campos</p>
-      <div id="chips-loading" style="font-size:0.76rem; color:var(--text-muted)">Carregando…</div>
+      <p class="hint">Arraste ou toque para preencher</p>
+      <div id="chips-loading" style="font-size:0.76rem;color:var(--text-muted)">Carregando…</div>
       <div class="chips-list" id="chips-list"></div>
     </div>
-
-    <!-- Form -->
     <div>
       <div class="panel">
         <div class="panel-title">&#9889; Montar Duplas</div>
-
         <div class="players-grid">
           <div class="team-section">
             <h4>&#128309; Dupla 1</h4>
-            <div class="input-group">
-              <label>Jogador 1</label>
-              <input id="p1" type="text" placeholder="Nome ou arraste..." maxlength="20"
-                ondragover="dragOver(event)" ondrop="dropOnInput(event,'p1')" ondragleave="dragLeave(event)"
-                onclick="tapFill('p1')" />
-            </div>
-            <div class="input-group">
-              <label>Jogador 2</label>
-              <input id="p2" type="text" placeholder="Nome ou arraste..." maxlength="20"
-                ondragover="dragOver(event)" ondrop="dropOnInput(event,'p2')" ondragleave="dragLeave(event)"
-                onclick="tapFill('p2')" />
-            </div>
+            <div class="input-group"><label>Jogador 1</label><input id="p1" type="text" placeholder="Nome ou arraste..." maxlength="20" ondragover="dragOver(event)" ondrop="dropOnInput(event,'p1')" ondragleave="dragLeave(event)" onclick="tapFill('p1')" /></div>
+            <div class="input-group"><label>Jogador 2</label><input id="p2" type="text" placeholder="Nome ou arraste..." maxlength="20" ondragover="dragOver(event)" ondrop="dropOnInput(event,'p2')" ondragleave="dragLeave(event)" onclick="tapFill('p2')" /></div>
           </div>
           <div class="team-section">
             <h4>&#128992; Dupla 2</h4>
-            <div class="input-group">
-              <label>Jogador 3</label>
-              <input id="p3" type="text" placeholder="Nome ou arraste..." maxlength="20"
-                ondragover="dragOver(event)" ondrop="dropOnInput(event,'p3')" ondragleave="dragLeave(event)"
-                onclick="tapFill('p3')" />
-            </div>
-            <div class="input-group">
-              <label>Jogador 4</label>
-              <input id="p4" type="text" placeholder="Nome ou arraste..." maxlength="20"
-                ondragover="dragOver(event)" ondrop="dropOnInput(event,'p4')" ondragleave="dragLeave(event)"
-                onclick="tapFill('p4')" />
-            </div>
+            <div class="input-group"><label>Jogador 3</label><input id="p3" type="text" placeholder="Nome ou arraste..." maxlength="20" ondragover="dragOver(event)" ondrop="dropOnInput(event,'p3')" ondragleave="dragLeave(event)" onclick="tapFill('p3')" /></div>
+            <div class="input-group"><label>Jogador 4</label><input id="p4" type="text" placeholder="Nome ou arraste..." maxlength="20" ondragover="dragOver(event)" ondrop="dropOnInput(event,'p4')" ondragleave="dragLeave(event)" onclick="tapFill('p4')" /></div>
           </div>
         </div>
-
         <button class="btn-primary" id="btn-start" onclick="startGame()">&#9889; Iniciar Partida</button>
       </div>
-
-      <div class="panel" style="font-size:0.82rem; color:var(--text-muted); line-height:1.9;">
+      <div class="panel" style="font-size:0.82rem;color:var(--text-muted);line-height:1.9;">
         <div class="panel-title">&#128218; Regras</div>
         <ul style="padding-left:18px;">
           <li>4 jogadores divididos em 2 duplas (podem mudar a cada partida)</li>
@@ -441,61 +335,33 @@
         </ul>
       </div>
     </div>
-
   </div>
 </div>
 
 <!-- ════ JOGO ════ -->
 <div class="screen" id="screen-jogo">
-  <div id="no-game" class="no-game-msg" style="display:none">
-    <p>Nenhuma partida em andamento.</p>
-    <button onclick="goTo('nova')">Iniciar Nova Partida</button>
-  </div>
-
+  <div id="no-game" class="no-game-msg" style="display:none"><p>Nenhuma partida em andamento.</p><button onclick="goTo('nova')">Iniciar Nova Partida</button></div>
   <div id="game-active" style="display:none">
     <div class="score-cards">
-      <div class="score-card" id="sc-t1">
-        <div class="team-label">Dupla 1</div>
-        <div class="players-label" id="sc-t1-players"></div>
-        <div class="score-num" id="sc-t1-score">0</div>
-        <div class="score-status" id="sc-t1-status">faltam 2000 pts</div>
-        <div class="progress-outer"><div class="prog-inner prog-t1" id="prog-t1" style="width:0%"></div></div>
-      </div>
-      <div class="score-card" id="sc-t2">
-        <div class="team-label">Dupla 2</div>
-        <div class="players-label" id="sc-t2-players"></div>
-        <div class="score-num" id="sc-t2-score">0</div>
-        <div class="score-status" id="sc-t2-status">faltam 2000 pts</div>
-        <div class="progress-outer"><div class="prog-inner prog-t2" id="prog-t2" style="width:0%"></div></div>
-      </div>
+      <div class="score-card" id="sc-t1"><div class="team-label">Dupla 1</div><div class="players-label" id="sc-t1-players"></div><div class="score-num" id="sc-t1-score">0</div><div class="score-status" id="sc-t1-status">faltam 2000 pts</div><div class="progress-outer"><div class="prog-inner prog-t1" id="prog-t1" style="width:0%"></div></div></div>
+      <div class="score-card" id="sc-t2"><div class="team-label">Dupla 2</div><div class="players-label" id="sc-t2-players"></div><div class="score-num" id="sc-t2-score">0</div><div class="score-status" id="sc-t2-status">faltam 2000 pts</div><div class="progress-outer"><div class="prog-inner prog-t2" id="prog-t2" style="width:0%"></div></div></div>
     </div>
-
     <div class="panel">
       <div class="panel-title" id="round-title">Rodada 1</div>
       <div class="round-inputs">
-        <div class="round-input-col">
-          <h4 id="ri-t1-label">Dupla 1</h4>
-          <input type="number" id="ri-t1" placeholder="0" oninput="updatePreview()" />
-        </div>
-        <div class="round-input-col">
-          <h4 id="ri-t2-label">Dupla 2</h4>
-          <input type="number" id="ri-t2" placeholder="0" oninput="updatePreview()" />
-        </div>
+        <div class="round-input-col"><h4 id="ri-t1-label">Dupla 1</h4><input type="number" id="ri-t1" placeholder="0" oninput="updatePreview()" /></div>
+        <div class="round-input-col"><h4 id="ri-t2-label">Dupla 2</h4><input type="number" id="ri-t2" placeholder="0" oninput="updatePreview()" /></div>
       </div>
       <div class="round-preview">
-        <div><span id="pv-t1-name">Dupla 1</span>: <span id="pv-t1-pts" style="color:var(--text-muted)">—</span></div>
-        <div><span id="pv-t2-name">Dupla 2</span>: <span id="pv-t2-pts" style="color:var(--text-muted)">—</span></div>
+        <div><span id="pv-t1-name">D1</span>: <span id="pv-t1-pts" style="color:var(--text-muted)">—</span></div>
+        <div><span id="pv-t2-name">D2</span>: <span id="pv-t2-pts" style="color:var(--text-muted)">—</span></div>
       </div>
       <button class="btn-confirm" id="btn-confirm" onclick="confirmRound()">&#10003; Confirmar Rodada</button>
     </div>
-
     <div class="panel">
       <div class="panel-title">&#128203; Rodadas desta Partida</div>
       <div class="rounds-scroll">
-        <table>
-          <thead><tr><th>#</th><th id="rh-t1">Dupla 1</th><th id="rh-t2">Dupla 2</th><th>Acum. D1</th><th>Acum. D2</th></tr></thead>
-          <tbody id="rounds-body"></tbody>
-        </table>
+        <table><thead><tr><th>#</th><th id="rh-t1">D1</th><th id="rh-t2">D2</th><th>Acum. D1</th><th>Acum. D2</th></tr></thead><tbody id="rounds-body"></tbody></table>
         <div id="rounds-empty" class="empty-state">Nenhuma rodada registrada ainda.</div>
       </div>
     </div>
@@ -513,46 +379,57 @@
 <div class="screen" id="screen-ranking">
   <div id="rank-loading" class="loading"><div class="spinner"></div><span>Carregando…</span></div>
   <div id="rank-content" style="display:none">
-
-    <!-- Ranking geral individual -->
     <div class="panel">
       <div class="panel-title">&#127942; Ranking Individual Geral</div>
       <div style="overflow-x:auto">
-        <table>
-          <thead><tr>
-            <th style="width:44px">#</th>
-            <th style="text-align:left;padding-left:14px">Jogador</th>
-            <th>Vitórias</th><th>Partidas</th><th>Win%</th>
-          </tr></thead>
-          <tbody id="rank-body"></tbody>
-        </table>
+        <table><thead><tr><th style="width:44px">#</th><th style="text-align:left;padding-left:14px">Jogador</th><th>Vitórias</th><th>Partidas</th><th>Win%</th></tr></thead><tbody id="rank-body"></tbody></table>
         <div id="rank-empty" class="empty-state" style="display:none">Nenhum dado ainda.</div>
       </div>
     </div>
-
-    <!-- Ranking por grupo -->
     <div class="panel">
-      <div class="panel-title">&#128101; Ranking por Grupo de Jogadores</div>
-      <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:14px;line-height:1.5">
-        Cada grupo reúne partidas disputadas exatamente entre os mesmos 4 jogadores.
-      </p>
+      <div class="panel-title">&#128101; Ranking por Grupo</div>
+      <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:14px;line-height:1.5">Cada grupo reúne partidas disputadas exatamente entre os mesmos 4 jogadores.</p>
       <div id="group-rankings"></div>
-      <div id="group-empty" class="empty-state" style="display:none">Nenhum grupo com partidas suficientes.</div>
+      <div id="group-empty" class="empty-state" style="display:none">Nenhum grupo encontrado.</div>
     </div>
-
   </div>
 </div>
 
-<!-- ════ WINNER OVERLAY ════ -->
-<div id="winner-overlay">
-  <div class="winner-box">
-    <div class="trophy">&#127942;</div>
-    <h2 id="win-title">Dupla 1 Venceu!</h2>
-    <div class="win-players" id="win-players"></div>
-    <div class="win-score" id="win-score"></div>
-    <button class="btn-primary" style="margin-top:8px" onclick="closeWinner(); goTo('nova')">Nova Partida</button>
-    <button class="btn-outline" onclick="closeWinner(); goTo('historico')">Ver Histórico</button>
-    <button class="btn-outline" onclick="closeWinner(); goTo('ranking')">Ver Ranking</button>
+<!-- ════ JOGADORES ════ -->
+<div class="screen" id="screen-jogadores">
+  <div id="jogadores-loading" class="loading"><div class="spinner"></div><span>Carregando…</span></div>
+  <div id="jogadores-content" style="display:none">
+    <div class="panel">
+      <div class="panel-title">&#128101; Selecionar Jogador</div>
+      <div class="player-select-grid" id="player-select-grid"></div>
+    </div>
+    <div id="player-stats-wrap" style="display:none">
+      <div class="panel">
+        <div class="panel-title" id="ps-name"></div>
+        <div class="stat-grid" id="ps-cards"></div>
+      </div>
+      <div class="stat-grid-2">
+        <div class="panel">
+          <div class="panel-title">&#128101; Parceiros</div>
+          <div class="mini-table-wrap">
+            <table><thead><tr><th style="text-align:left;padding-left:10px">Parceiro</th><th>Jogos</th><th>Vitórias</th><th>Win%</th></tr></thead><tbody id="ps-partners"></tbody></table>
+            <div id="ps-partners-empty" class="empty-state" style="display:none">—</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">&#9876; Adversários</div>
+          <div class="mini-table-wrap">
+            <table><thead><tr><th style="text-align:left;padding-left:10px">Adversário</th><th>Jogos</th><th>Vitórias</th><th>Win%</th></tr></thead><tbody id="ps-opponents"></tbody></table>
+            <div id="ps-opponents-empty" class="empty-state" style="display:none">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">&#128336; Últimas Partidas</div>
+        <div id="ps-recent"></div>
+      </div>
+    </div>
+    <div id="no-player-msg" class="no-player-msg">Selecione um jogador acima para ver as estatísticas.</div>
   </div>
 </div>
 
@@ -560,7 +437,6 @@
 <div id="edit-overlay">
   <div class="edit-box">
     <h3>&#9998; Editar Partida</h3>
-
     <div class="edit-teams">
       <div class="edit-team-col">
         <h4>&#128309; Dupla 1</h4>
@@ -573,78 +449,77 @@
         <input id="ed-p4" type="text" placeholder="Jogador 4" maxlength="20" />
       </div>
     </div>
-
     <div class="edit-scores">
-      <div class="edit-score-col">
-        <label>Placar final — Dupla 1</label>
-        <input id="ed-s1" type="number" min="0" />
-      </div>
-      <div class="edit-score-col">
-        <label>Placar final — Dupla 2</label>
-        <input id="ed-s2" type="number" min="0" />
-      </div>
+      <div class="edit-score-col"><label>Placar final — Dupla 1</label><input id="ed-s1" type="number" min="0" /></div>
+      <div class="edit-score-col"><label>Placar final — Dupla 2</label><input id="ed-s2" type="number" min="0" /></div>
     </div>
-
     <div class="winner-select">
       <label>Dupla vencedora</label>
       <div class="winner-radios">
-        <label class="winner-radio">
-          <input type="radio" name="ed-winner" value="1" /> &#127942; Dupla 1
-        </label>
-        <label class="winner-radio">
-          <input type="radio" name="ed-winner" value="2" /> &#127942; Dupla 2
-        </label>
+        <label class="winner-radio"><input type="radio" name="ed-winner" value="1" /> &#127942; Dupla 1</label>
+        <label class="winner-radio"><input type="radio" name="ed-winner" value="2" /> &#127942; Dupla 2</label>
       </div>
     </div>
-
     <div class="edit-actions">
       <button class="btn-cancel" onclick="closeEdit()">Cancelar</button>
-      <button class="btn-confirm" id="btn-save-edit" onclick="saveEdit()">&#10003; Salvar Alterações</button>
+      <button class="btn-confirm" id="btn-save-edit" onclick="saveEdit()">&#10003; Salvar</button>
     </div>
+    <hr class="edit-divider" />
+    <!-- Delete flow -->
+    <div class="delete-confirm-row" id="delete-confirm-row">
+      <p>&#9888; Tem certeza? Esta ação é irreversível e apagará todas as rodadas da partida.</p>
+      <div class="dc-btns">
+        <button class="dc-no" onclick="hideDeleteConfirm()">Cancelar</button>
+        <button class="dc-yes" id="btn-confirm-delete" onclick="confirmDelete()">Sim, excluir</button>
+      </div>
+    </div>
+    <button class="btn-danger" id="btn-delete-partida" onclick="showDeleteConfirm()">&#128465; Excluir esta Partida</button>
+  </div>
+</div>
+
+<!-- ════ WINNER OVERLAY ════ -->
+<div id="winner-overlay">
+  <div class="winner-box">
+    <div class="trophy">&#127942;</div>
+    <h2 id="win-title">Dupla 1 Venceu!</h2>
+    <div class="win-players" id="win-players"></div>
+    <div class="win-score" id="win-score"></div>
+    <button class="btn-primary" style="margin-top:8px" onclick="closeWinner();goTo('nova')">Nova Partida</button>
+    <button class="btn-outline" onclick="closeWinner();goTo('historico')">Ver Histórico</button>
+    <button class="btn-outline" onclick="closeWinner();goTo('ranking')">Ver Ranking</button>
   </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-  // ─── Supabase ─────────────────────────────────────────────
+  // ─── Supabase ────────────────────────────────────────────
   const { createClient } = supabase;
   const db = createClient(
     'https://bnihhiizsznftnciikbx.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuaWhoaWl6c3puZnRuY2lpa2J4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NDk4MzUsImV4cCI6MjA5MDAyNTgzNX0.7iQEL1-lBn6djHPRc4NjmY4CqKzgBjg8TUaLCVrLsrc'
   );
-
   const GOAL = 2000;
 
-  // ─── Game state ───────────────────────────────────────────
+  // ─── Game state ──────────────────────────────────────────
   let game = null;
+  function saveGame() { if (game) localStorage.setItem('buraco_v3', JSON.stringify(game)); else localStorage.removeItem('buraco_v3'); }
+  function loadGame() { try { const s = localStorage.getItem('buraco_v3'); if (s) game = JSON.parse(s); } catch(e) { game = null; } }
 
-  function saveGame() {
-    if (game) localStorage.setItem('buraco_game_v2', JSON.stringify(game));
-    else localStorage.removeItem('buraco_game_v2');
-  }
-
-  function loadGame() {
-    try {
-      const s = localStorage.getItem('buraco_game_v2');
-      if (s) game = JSON.parse(s);
-    } catch(e) { game = null; }
-  }
-
-  // ─── Navigation ───────────────────────────────────────────
+  // ─── Navigation ──────────────────────────────────────────
   function goTo(screen) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     document.getElementById('screen-' + screen).classList.add('active');
     document.getElementById('tab-' + screen).classList.add('active');
-
     if (screen === 'nova')      renderSetup();
     if (screen === 'jogo')      renderGame();
     if (screen === 'historico') loadHistory();
     if (screen === 'ranking')   loadRanking();
+    if (screen === 'jogadores') loadJogadores();
   }
 
-  // ─── Setup / Nova Partida ─────────────────────────────────
+  // ─── Nova Partida ─────────────────────────────────────────
   async function renderSetup() {
     document.getElementById('warn-active').style.display = game ? 'block' : 'none';
     await loadKnownPlayers();
@@ -653,521 +528,422 @@
   async function loadKnownPlayers() {
     const loadingEl = document.getElementById('chips-loading');
     const listEl    = document.getElementById('chips-list');
-    loadingEl.style.display = 'block';
-    listEl.innerHTML = '';
-
+    loadingEl.style.display = 'block'; listEl.innerHTML = '';
     try {
-      const { data, error } = await db
-        .from('partidas')
-        .select('dupla1_jogador1, dupla1_jogador2, dupla2_jogador1, dupla2_jogador2');
-
-      if (error) throw error;
-
+      const { data } = await db.from('partidas').select('dupla1_jogador1,dupla1_jogador2,dupla2_jogador1,dupla2_jogador2');
       const names = new Set();
-      data?.forEach(p => {
-        [p.dupla1_jogador1, p.dupla1_jogador2, p.dupla2_jogador1, p.dupla2_jogador2]
-          .forEach(n => { if (n) names.add(n); });
-      });
-
+      data?.forEach(p => [p.dupla1_jogador1,p.dupla1_jogador2,p.dupla2_jogador1,p.dupla2_jogador2].forEach(n => { if (n) names.add(n); }));
       loadingEl.style.display = 'none';
-
-      if (!names.size) {
-        listEl.innerHTML = '<div class="no-history">Nenhum histórico ainda</div>';
-        return;
-      }
-
+      if (!names.size) { listEl.innerHTML = '<div class="no-history">Nenhum histórico ainda</div>'; return; }
       [...names].sort().forEach(name => {
         const chip = document.createElement('div');
-        chip.className = 'player-chip';
-        chip.textContent = name;
-        chip.draggable = true;
-        chip.dataset.name = name;
-
-        chip.addEventListener('dragstart', e => {
-          e.dataTransfer.setData('text/plain', name);
-          e.dataTransfer.effectAllowed = 'copy';
-          selectedChip = null;
-          clearChipSelection();
-        });
-
-        chip.addEventListener('click', e => {
-          e.stopPropagation();
-          if (selectedChip === name) {
-            selectedChip = null;
-            clearChipSelection();
-          } else {
-            selectedChip = name;
-            clearChipSelection();
-            chip.classList.add('selected');
-          }
-        });
-
+        chip.className = 'player-chip'; chip.textContent = name; chip.draggable = true; chip.dataset.name = name;
+        chip.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', name); e.dataTransfer.effectAllowed = 'copy'; selectedChip = null; clearChipSelection(); });
+        chip.addEventListener('click', e => { e.stopPropagation(); if (selectedChip === name) { selectedChip = null; clearChipSelection(); } else { selectedChip = name; clearChipSelection(); chip.classList.add('selected'); } });
         listEl.appendChild(chip);
       });
-
-    } catch(e) {
-      loadingEl.textContent = 'Erro ao carregar.';
-    }
+    } catch(e) { loadingEl.textContent = 'Erro.'; }
   }
 
-  // ── Chip selection state (tap-to-fill) ──
   let selectedChip = null;
+  function clearChipSelection() { document.querySelectorAll('.player-chip').forEach(c => c.classList.remove('selected')); }
+  document.addEventListener('click', () => { selectedChip = null; clearChipSelection(); });
+  function tapFill(inputId) { if (!selectedChip) return; document.getElementById(inputId).value = selectedChip; selectedChip = null; clearChipSelection(); }
+  function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; e.target.classList.add('drop-hover'); }
+  function dragLeave(e) { e.target.classList.remove('drop-hover'); }
+  function dropOnInput(e, inputId) { e.preventDefault(); e.target.classList.remove('drop-hover'); const n = e.dataTransfer.getData('text/plain'); if (n) document.getElementById(inputId).value = n; }
 
-  function clearChipSelection() {
-    document.querySelectorAll('.player-chip').forEach(c => c.classList.remove('selected'));
-  }
-
-  // Click anywhere outside chips clears selection
-  document.addEventListener('click', () => {
-    selectedChip = null;
-    clearChipSelection();
-  });
-
-  // Tap to fill: click on input after selecting a chip
-  function tapFill(inputId) {
-    if (!selectedChip) return;
-    document.getElementById(inputId).value = selectedChip;
-    selectedChip = null;
-    clearChipSelection();
-  }
-
-  // ── Drag-and-drop handlers ──
-  function dragOver(e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-    e.target.classList.add('drop-hover');
-  }
-
-  function dragLeave(e) {
-    e.target.classList.remove('drop-hover');
-  }
-
-  function dropOnInput(e, inputId) {
-    e.preventDefault();
-    e.target.classList.remove('drop-hover');
-    const name = e.dataTransfer.getData('text/plain');
-    if (name) document.getElementById(inputId).value = name;
-  }
-
-  // ── Start game ──
   async function startGame() {
-    const p1 = document.getElementById('p1').value.trim();
-    const p2 = document.getElementById('p2').value.trim();
-    const p3 = document.getElementById('p3').value.trim();
-    const p4 = document.getElementById('p4').value.trim();
-
-    if (!p1 || !p2 || !p3 || !p4) { toast('Preencha os nomes dos 4 jogadores.', true); return; }
-
-    const btn = document.getElementById('btn-start');
-    btn.disabled = true; btn.textContent = 'Criando partida…';
-
+    const p1=document.getElementById('p1').value.trim(), p2=document.getElementById('p2').value.trim();
+    const p3=document.getElementById('p3').value.trim(), p4=document.getElementById('p4').value.trim();
+    if (!p1||!p2||!p3||!p4) { toast('Preencha os nomes dos 4 jogadores.',true); return; }
+    const btn=document.getElementById('btn-start'); btn.disabled=true; btn.textContent='Criando…';
     try {
-      const { data, error } = await db.from('partidas').insert({
-        dupla1_jogador1: p1, dupla1_jogador2: p2,
-        dupla2_jogador1: p3, dupla2_jogador2: p4,
-        placar_final_dupla1: 0, placar_final_dupla2: 0, dupla_vencedora: null
-      }).select().single();
-
+      const { data, error } = await db.from('partidas').insert({ dupla1_jogador1:p1, dupla1_jogador2:p2, dupla2_jogador1:p3, dupla2_jogador2:p4, placar_final_dupla1:0, placar_final_dupla2:0, dupla_vencedora:null }).select().single();
       if (error) throw error;
-
-      game = { partida_id: data.id, p1, p2, p3, p4, acc1: 0, acc2: 0, rounds: [], roundNum: 1 };
-      saveGame();
-      toast('Partida iniciada!');
-      goTo('jogo');
-    } catch(e) {
-      toast('Erro ao criar partida: ' + e.message, true);
-    } finally {
-      btn.disabled = false; btn.textContent = '⚡ Iniciar Partida';
-    }
+      game = { partida_id:data.id, p1,p2,p3,p4, acc1:0, acc2:0, rounds:[], roundNum:1 };
+      saveGame(); toast('Partida iniciada!'); goTo('jogo');
+    } catch(e) { toast('Erro: '+e.message,true); }
+    finally { btn.disabled=false; btn.textContent='⚡ Iniciar Partida'; }
   }
 
-  // ─── Game rendering ───────────────────────────────────────
+  // ─── Game ─────────────────────────────────────────────────
   function renderGame() {
-    if (!game) {
-      document.getElementById('no-game').style.display = 'block';
-      document.getElementById('game-active').style.display = 'none';
-      document.getElementById('dot-jogo').style.display = 'none';
-      return;
-    }
-    document.getElementById('no-game').style.display = 'none';
-    document.getElementById('game-active').style.display = 'block';
-    document.getElementById('dot-jogo').style.display = 'inline-block';
-
-    document.getElementById('sc-t1-players').textContent = game.p1 + ' & ' + game.p2;
-    document.getElementById('sc-t2-players').textContent = game.p3 + ' & ' + game.p4;
-    document.getElementById('ri-t1-label').textContent = fn(game.p1) + ' & ' + fn(game.p2);
-    document.getElementById('ri-t2-label').textContent = fn(game.p3) + ' & ' + fn(game.p4);
-    document.getElementById('pv-t1-name').textContent = fn(game.p1);
-    document.getElementById('pv-t2-name').textContent = fn(game.p3);
-    document.getElementById('round-title').textContent = 'Rodada ' + game.roundNum;
-
-    updateScoreDisplay();
-    renderRoundsTable();
-    updatePreview();
+    if (!game) { document.getElementById('no-game').style.display='block'; document.getElementById('game-active').style.display='none'; document.getElementById('dot-jogo').style.display='none'; return; }
+    document.getElementById('no-game').style.display='none'; document.getElementById('game-active').style.display='block'; document.getElementById('dot-jogo').style.display='inline-block';
+    document.getElementById('sc-t1-players').textContent=game.p1+' & '+game.p2;
+    document.getElementById('sc-t2-players').textContent=game.p3+' & '+game.p4;
+    document.getElementById('ri-t1-label').textContent=fn(game.p1)+' & '+fn(game.p2);
+    document.getElementById('ri-t2-label').textContent=fn(game.p3)+' & '+fn(game.p4);
+    document.getElementById('pv-t1-name').textContent=fn(game.p1);
+    document.getElementById('pv-t2-name').textContent=fn(game.p3);
+    document.getElementById('round-title').textContent='Rodada '+game.roundNum;
+    updateScoreDisplay(); renderRoundsTable(); updatePreview();
   }
 
   function updateScoreDisplay() {
     if (!game) return;
-    document.getElementById('sc-t1-score').textContent = game.acc1;
-    document.getElementById('sc-t2-score').textContent = game.acc2;
-    const left1 = Math.max(0, GOAL - game.acc1);
-    const left2 = Math.max(0, GOAL - game.acc2);
-    document.getElementById('sc-t1-status').textContent = left1 > 0 ? `faltam ${left1} pts` : '✓ Meta atingida!';
-    document.getElementById('sc-t2-status').textContent = left2 > 0 ? `faltam ${left2} pts` : '✓ Meta atingida!';
-    document.getElementById('prog-t1').style.width = Math.min(100, (game.acc1 / GOAL) * 100) + '%';
-    document.getElementById('prog-t2').style.width = Math.min(100, (game.acc2 / GOAL) * 100) + '%';
-    document.getElementById('sc-t1').classList.toggle('leading', game.acc1 >= game.acc2 && game.rounds.length > 0);
-    document.getElementById('sc-t2').classList.toggle('leading', game.acc2 > game.acc1 && game.rounds.length > 0);
+    document.getElementById('sc-t1-score').textContent=game.acc1;
+    document.getElementById('sc-t2-score').textContent=game.acc2;
+    const l1=Math.max(0,GOAL-game.acc1), l2=Math.max(0,GOAL-game.acc2);
+    document.getElementById('sc-t1-status').textContent=l1>0?`faltam ${l1} pts`:'✓ Meta atingida!';
+    document.getElementById('sc-t2-status').textContent=l2>0?`faltam ${l2} pts`:'✓ Meta atingida!';
+    document.getElementById('prog-t1').style.width=Math.min(100,(game.acc1/GOAL)*100)+'%';
+    document.getElementById('prog-t2').style.width=Math.min(100,(game.acc2/GOAL)*100)+'%';
+    document.getElementById('sc-t1').classList.toggle('leading', game.acc1>=game.acc2 && game.rounds.length>0);
+    document.getElementById('sc-t2').classList.toggle('leading', game.acc2>game.acc1 && game.rounds.length>0);
   }
 
   function updatePreview() {
-    const v1 = parseInt(document.getElementById('ri-t1').value);
-    const v2 = parseInt(document.getElementById('ri-t2').value);
-    const setEl = (id, val) => {
-      const el = document.getElementById(id);
-      if (isNaN(val)) { el.textContent = '—'; el.style.color = 'var(--text-muted)'; return; }
-      el.textContent = (val >= 0 ? '+' : '') + val;
-      el.style.color = val >= 0 ? '#4ade80' : '#f87171';
-    };
-    setEl('pv-t1-pts', v1);
-    setEl('pv-t2-pts', v2);
+    const v1=parseInt(document.getElementById('ri-t1').value), v2=parseInt(document.getElementById('ri-t2').value);
+    const setEl=(id,v)=>{ const el=document.getElementById(id); if(isNaN(v)){el.textContent='—';el.style.color='var(--text-muted)';return;} el.textContent=(v>=0?'+':'')+v; el.style.color=v>=0?'#4ade80':'#f87171'; };
+    setEl('pv-t1-pts',v1); setEl('pv-t2-pts',v2);
   }
 
   function renderRoundsTable() {
     if (!game) return;
-    const tbody = document.getElementById('rounds-body');
-    const empty = document.getElementById('rounds-empty');
-    if (!game.rounds.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
-    empty.style.display = 'none';
-    const fmt = v => `<span class="${v >= 0 ? 'td-pos' : 'td-neg'}">${v >= 0 ? '+' : ''}${v}</span>`;
-    tbody.innerHTML = [...game.rounds].reverse().map(r =>
-      `<tr><td class="td-muted">${r.num}</td><td>${fmt(r.d1)}</td><td>${fmt(r.d2)}</td><td>${r.acc1}</td><td>${r.acc2}</td></tr>`
-    ).join('');
+    const tbody=document.getElementById('rounds-body'), empty=document.getElementById('rounds-empty');
+    if (!game.rounds.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display='none';
+    const fmt=v=>`<span class="${v>=0?'td-pos':'td-neg'}">${v>=0?'+':''}${v}</span>`;
+    tbody.innerHTML=[...game.rounds].reverse().map(r=>`<tr><td class="td-muted">${r.num}</td><td>${fmt(r.d1)}</td><td>${fmt(r.d2)}</td><td>${r.acc1}</td><td>${r.acc2}</td></tr>`).join('');
   }
 
-  // ─── Confirm round ────────────────────────────────────────
   async function confirmRound() {
     if (!game) return;
-    const rawV1 = document.getElementById('ri-t1').value;
-    const rawV2 = document.getElementById('ri-t2').value;
-    const v1 = parseInt(rawV1), v2 = parseInt(rawV2);
-    if (rawV1 === '' || rawV2 === '' || isNaN(v1) || isNaN(v2)) { toast('Insira os pontos das duas duplas.', true); return; }
-
-    const btn = document.getElementById('btn-confirm');
-    btn.disabled = true; btn.textContent = 'Salvando…';
-
+    const r1=document.getElementById('ri-t1').value, r2=document.getElementById('ri-t2').value;
+    const v1=parseInt(r1), v2=parseInt(r2);
+    if (r1===''||r2===''||isNaN(v1)||isNaN(v2)) { toast('Insira os pontos das duas duplas.',true); return; }
+    const btn=document.getElementById('btn-confirm'); btn.disabled=true; btn.textContent='Salvando…';
     try {
-      const { error } = await db.from('rodadas').insert({
-        partida_id: game.partida_id, numero_rodada: game.roundNum,
-        pontos_dupla1: v1, pontos_dupla2: v2
-      });
+      const { error } = await db.from('rodadas').insert({ partida_id:game.partida_id, numero_rodada:game.roundNum, pontos_dupla1:v1, pontos_dupla2:v2 });
       if (error) throw error;
-
-      game.acc1 += v1; game.acc2 += v2;
-      game.rounds.push({ num: game.roundNum, d1: v1, d2: v2, acc1: game.acc1, acc2: game.acc2 });
-      game.roundNum++;
-      saveGame();
-
-      document.getElementById('ri-t1').value = '';
-      document.getElementById('ri-t2').value = '';
-      document.getElementById('round-title').textContent = 'Rodada ' + game.roundNum;
-      updateScoreDisplay();
-      renderRoundsTable();
-      updatePreview();
-
-      if (game.acc1 >= GOAL || game.acc2 >= GOAL) await finishGame();
-    } catch(e) {
-      toast('Erro ao salvar rodada: ' + e.message, true);
-    } finally {
-      btn.disabled = false; btn.textContent = '✓ Confirmar Rodada';
-    }
+      game.acc1+=v1; game.acc2+=v2;
+      game.rounds.push({ num:game.roundNum, d1:v1, d2:v2, acc1:game.acc1, acc2:game.acc2 });
+      game.roundNum++; saveGame();
+      document.getElementById('ri-t1').value=''; document.getElementById('ri-t2').value='';
+      document.getElementById('round-title').textContent='Rodada '+game.roundNum;
+      updateScoreDisplay(); renderRoundsTable(); updatePreview();
+      if (game.acc1>=GOAL||game.acc2>=GOAL) await finishGame();
+    } catch(e) { toast('Erro: '+e.message,true); }
+    finally { btn.disabled=false; btn.textContent='✓ Confirmar Rodada'; }
   }
 
   async function finishGame() {
-    let winner;
-    if (game.acc1 >= GOAL && game.acc2 >= GOAL) winner = game.acc1 >= game.acc2 ? 1 : 2;
-    else winner = game.acc1 >= GOAL ? 1 : 2;
-
-    try {
-      await db.from('partidas').update({
-        placar_final_dupla1: game.acc1, placar_final_dupla2: game.acc2, dupla_vencedora: winner
-      }).eq('id', game.partida_id);
-    } catch(e) { console.error('Erro ao finalizar:', e); }
-
-    const winName    = winner === 1 ? 'Dupla 1' : 'Dupla 2';
-    const winPlayers = winner === 1 ? `${game.p1} & ${game.p2}` : `${game.p3} & ${game.p4}`;
-    document.getElementById('win-title').textContent   = winName + ' Venceu! 🎉';
-    document.getElementById('win-players').textContent = winPlayers;
-    document.getElementById('win-score').textContent   = `${game.acc1} × ${game.acc2} pts`;
+    const winner = (game.acc1>=GOAL&&game.acc2>=GOAL) ? (game.acc1>=game.acc2?1:2) : (game.acc1>=GOAL?1:2);
+    try { await db.from('partidas').update({ placar_final_dupla1:game.acc1, placar_final_dupla2:game.acc2, dupla_vencedora:winner }).eq('id',game.partida_id); } catch(e) { console.error(e); }
+    document.getElementById('win-title').textContent=(winner===1?'Dupla 1':'Dupla 2')+' Venceu! 🎉';
+    document.getElementById('win-players').textContent=winner===1?`${game.p1} & ${game.p2}`:`${game.p3} & ${game.p4}`;
+    document.getElementById('win-score').textContent=`${game.acc1} × ${game.acc2} pts`;
     document.getElementById('winner-overlay').classList.add('show');
-
-    game = null; saveGame();
-    document.getElementById('dot-jogo').style.display = 'none';
+    game=null; saveGame(); document.getElementById('dot-jogo').style.display='none';
   }
 
   function closeWinner() { document.getElementById('winner-overlay').classList.remove('show'); }
 
   // ─── History ─────────────────────────────────────────────
   async function loadHistory() {
-    const loading = document.getElementById('hist-loading');
-    const list    = document.getElementById('hist-list');
-    const empty   = document.getElementById('hist-empty');
-    loading.style.display = 'flex'; list.innerHTML = ''; empty.style.display = 'none';
-
+    const loading=document.getElementById('hist-loading'), list=document.getElementById('hist-list'), empty=document.getElementById('hist-empty');
+    loading.style.display='flex'; list.innerHTML=''; empty.style.display='none';
     try {
-      const { data, error } = await db.from('partidas').select('*')
-        .not('dupla_vencedora', 'is', null).order('data', { ascending: false }).limit(60);
+      const { data, error } = await db.from('partidas').select('*').not('dupla_vencedora','is',null).order('data',{ascending:false}).limit(60);
       if (error) throw error;
-      loading.style.display = 'none';
-      if (!data.length) { empty.style.display = 'block'; return; }
+      loading.style.display='none';
+      if (!data.length) { empty.style.display='block'; return; }
       list.innerHTML = data.map(p => {
-        const w = p.dupla_vencedora;
-        const date = new Date(p.data).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-        const pd = encodeURIComponent(JSON.stringify(p));
+        const w=p.dupla_vencedora;
+        const date=new Date(p.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+        const pd=encodeURIComponent(JSON.stringify(p));
         return `<div class="history-card">
           <div class="hc-header">
             <span class="hc-date">&#128197; ${date}</span>
-            <div style="display:flex;align-items:center;gap:8px">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
               <span class="winner-badge">&#127942; Dupla ${w} venceu</span>
               <button class="edit-btn" onclick="openEdit(decodeURIComponent('${pd}'))">&#9998; Editar</button>
             </div>
           </div>
           <div class="hc-teams">
-            <div class="hc-team ${w===1?'winner':''}">
-              <div class="hc-name">${esc(p.dupla1_jogador1)}<br>${esc(p.dupla1_jogador2)}</div>
-              <div class="hc-score">${p.placar_final_dupla1}</div>
-            </div>
+            <div class="hc-team ${w===1?'winner':''}"><div class="hc-name">${esc(p.dupla1_jogador1)}<br>${esc(p.dupla1_jogador2)}</div><div class="hc-score">${p.placar_final_dupla1}</div></div>
             <div class="hc-vs">&#215;</div>
-            <div class="hc-team ${w===2?'winner':''}">
-              <div class="hc-name">${esc(p.dupla2_jogador1)}<br>${esc(p.dupla2_jogador2)}</div>
-              <div class="hc-score">${p.placar_final_dupla2}</div>
-            </div>
+            <div class="hc-team ${w===2?'winner':''}"><div class="hc-name">${esc(p.dupla2_jogador1)}<br>${esc(p.dupla2_jogador2)}</div><div class="hc-score">${p.placar_final_dupla2}</div></div>
           </div>
         </div>`;
       }).join('');
-    } catch(e) {
-      loading.style.display = 'none';
-      toast('Erro ao carregar histórico: ' + e.message, true);
-    }
+    } catch(e) { loading.style.display='none'; toast('Erro: '+e.message,true); }
   }
 
-  // ─── Ranking ─────────────────────────────────────────────
-  async function loadRanking() {
-    const loading = document.getElementById('rank-loading');
-    const content = document.getElementById('rank-content');
-    loading.style.display = 'flex'; content.style.display = 'none';
-
-    try {
-      const { data, error } = await db.from('partidas')
-        .select('dupla1_jogador1, dupla1_jogador2, dupla2_jogador1, dupla2_jogador2, dupla_vencedora')
-        .not('dupla_vencedora', 'is', null);
-      if (error) throw error;
-
-      loading.style.display = 'none';
-      content.style.display = 'block';
-
-      // ── Global individual ranking ──
-      const players = {};
-      const ensure = n => { if (!players[n]) players[n] = { wins: 0, games: 0 }; };
-
-      data.forEach(p => {
-        [p.dupla1_jogador1, p.dupla1_jogador2, p.dupla2_jogador1, p.dupla2_jogador2]
-          .forEach(n => { ensure(n); players[n].games++; });
-        if (p.dupla_vencedora === 1) { players[p.dupla1_jogador1].wins++; players[p.dupla1_jogador2].wins++; }
-        if (p.dupla_vencedora === 2) { players[p.dupla2_jogador1].wins++; players[p.dupla2_jogador2].wins++; }
-      });
-
-      const sorted = Object.entries(players).sort((a,b) => b[1].wins - a[1].wins || b[1].games - a[1].games);
-      const medals = ['🥇','🥈','🥉'];
-      const tbody = document.getElementById('rank-body');
-      const empty = document.getElementById('rank-empty');
-
-      if (!sorted.length) { tbody.innerHTML = ''; empty.style.display = 'block'; }
-      else {
-        empty.style.display = 'none';
-        tbody.innerHTML = sorted.map(([name, s], i) => {
-          const pct = s.games ? Math.round(s.wins / s.games * 100) : 0;
-          const rc  = i < 3 ? `rank-${i+1}` : '';
-          const rd  = i < 3 ? medals[i] : (i+1);
-          return `<tr>
-            <td class="rank-num ${rc}">${rd}</td>
-            <td style="text-align:left;padding-left:14px;font-weight:600">${esc(name)}</td>
-            <td><strong>${s.wins}</strong></td><td>${s.games}</td><td>${pct}%</td>
-          </tr>`;
-        }).join('');
-      }
-
-      // ── Group rankings ──
-      renderGroupRankings(data);
-
-    } catch(e) {
-      loading.style.display = 'none';
-      toast('Erro ao carregar ranking: ' + e.message, true);
-    }
-  }
-
-  function renderGroupRankings(data) {
-    const groupsEl = document.getElementById('group-rankings');
-    const groupEmpty = document.getElementById('group-empty');
-    groupsEl.innerHTML = '';
-
-    // Group partidas by sorted 4-player key
-    const groups = {};
-    data.forEach(p => {
-      const four = [p.dupla1_jogador1, p.dupla1_jogador2, p.dupla2_jogador1, p.dupla2_jogador2];
-      const key  = [...four].sort().join('|||');
-      if (!groups[key]) groups[key] = { players: [...four].sort(), games: [] };
-      groups[key].games.push(p);
-    });
-
-    const sorted = Object.values(groups).sort((a,b) => b.games.length - a.games.length);
-
-    if (!sorted.length) { groupEmpty.style.display = 'block'; return; }
-    groupEmpty.style.display = 'none';
-
-    sorted.forEach((group, gi) => {
-      // Per-player stats within this group
-      const gPlayers = {};
-      group.players.forEach(n => { gPlayers[n] = { wins: 0, games: 0 }; });
-
-      group.games.forEach(p => {
-        [p.dupla1_jogador1, p.dupla1_jogador2, p.dupla2_jogador1, p.dupla2_jogador2]
-          .forEach(n => { if (gPlayers[n]) gPlayers[n].games++; });
-        if (p.dupla_vencedora === 1) { gPlayers[p.dupla1_jogador1].wins++; gPlayers[p.dupla1_jogador2].wins++; }
-        if (p.dupla_vencedora === 2) { gPlayers[p.dupla2_jogador1].wins++; gPlayers[p.dupla2_jogador2].wins++; }
-      });
-
-      const gSorted = Object.entries(gPlayers).sort((a,b) => b[1].wins - a[1].wins || b[1].games - a[1].games);
-      const medals  = ['🥇','🥈','🥉','4️⃣'];
-      const bodyId  = `gbody-${gi}`;
-      const chevId  = `gchev-${gi}`;
-
-      const section = document.createElement('div');
-      section.className = 'group-section';
-      section.innerHTML = `
-        <div class="group-header" onclick="toggleGroup('${bodyId}','${chevId}')">
-          <div class="group-title">
-            ${group.players.map(n => esc(n)).join(' · ')}
-            <span>${group.games.length} partida${group.games.length !== 1 ? 's' : ''}</span>
-          </div>
-          <span class="group-chevron" id="${chevId}">▼</span>
-        </div>
-        <div class="group-body" id="${bodyId}">
-          <table>
-            <thead><tr>
-              <th style="width:44px">#</th>
-              <th style="text-align:left;padding-left:14px">Jogador</th>
-              <th>Vitórias</th><th>Partidas</th><th>Win%</th>
-            </tr></thead>
-            <tbody>
-              ${gSorted.map(([name, s], i) => {
-                const pct = s.games ? Math.round(s.wins / s.games * 100) : 0;
-                const rc  = i < 3 ? `rank-${i+1}` : '';
-                return `<tr>
-                  <td class="rank-num ${rc}">${medals[i] || (i+1)}</td>
-                  <td style="text-align:left;padding-left:14px;font-weight:600">${esc(name)}</td>
-                  <td><strong>${s.wins}</strong></td><td>${s.games}</td><td>${pct}%</td>
-                </tr>`;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>`;
-      groupsEl.appendChild(section);
-    });
-  }
-
-  function toggleGroup(bodyId, chevId) {
-    const body = document.getElementById(bodyId);
-    const chev = document.getElementById(chevId);
-    const isOpen = body.style.display !== 'none';
-    body.style.display = isOpen ? 'none' : '';
-    chev.classList.toggle('open', !isOpen);
-  }
-
-  // ─── Edit modal ──────────────────────────────────────────
+  // ─── Edit modal ───────────────────────────────────────────
   let editingId = null;
 
   function openEdit(jsonStr) {
     const p = JSON.parse(jsonStr);
     editingId = p.id;
-
-    document.getElementById('ed-p1').value = p.dupla1_jogador1 || '';
-    document.getElementById('ed-p2').value = p.dupla1_jogador2 || '';
-    document.getElementById('ed-p3').value = p.dupla2_jogador1 || '';
-    document.getElementById('ed-p4').value = p.dupla2_jogador2 || '';
-    document.getElementById('ed-s1').value = p.placar_final_dupla1 ?? 0;
-    document.getElementById('ed-s2').value = p.placar_final_dupla2 ?? 0;
-
-    document.querySelectorAll('input[name="ed-winner"]').forEach(r => {
-      r.checked = parseInt(r.value) === p.dupla_vencedora;
-    });
-
+    document.getElementById('ed-p1').value=p.dupla1_jogador1||'';
+    document.getElementById('ed-p2').value=p.dupla1_jogador2||'';
+    document.getElementById('ed-p3').value=p.dupla2_jogador1||'';
+    document.getElementById('ed-p4').value=p.dupla2_jogador2||'';
+    document.getElementById('ed-s1').value=p.placar_final_dupla1??0;
+    document.getElementById('ed-s2').value=p.placar_final_dupla2??0;
+    document.querySelectorAll('input[name="ed-winner"]').forEach(r => { r.checked=parseInt(r.value)===p.dupla_vencedora; });
+    hideDeleteConfirm();
     document.getElementById('edit-overlay').classList.add('show');
   }
 
-  function closeEdit() {
-    document.getElementById('edit-overlay').classList.remove('show');
-    editingId = null;
-  }
+  function closeEdit() { document.getElementById('edit-overlay').classList.remove('show'); editingId=null; }
 
   async function saveEdit() {
     if (!editingId) return;
-
-    const p1 = document.getElementById('ed-p1').value.trim();
-    const p2 = document.getElementById('ed-p2').value.trim();
-    const p3 = document.getElementById('ed-p3').value.trim();
-    const p4 = document.getElementById('ed-p4').value.trim();
-    const s1 = parseInt(document.getElementById('ed-s1').value);
-    const s2 = parseInt(document.getElementById('ed-s2').value);
-    const winnerEl = document.querySelector('input[name="ed-winner"]:checked');
-
-    if (!p1 || !p2 || !p3 || !p4) { toast('Preencha todos os nomes.', true); return; }
-    if (isNaN(s1) || isNaN(s2))    { toast('Placares inválidos.', true); return; }
-    if (!winnerEl)                  { toast('Selecione a dupla vencedora.', true); return; }
-
-    const btn = document.getElementById('btn-save-edit');
-    btn.disabled = true; btn.textContent = 'Salvando…';
-
+    const p1=document.getElementById('ed-p1').value.trim(), p2=document.getElementById('ed-p2').value.trim();
+    const p3=document.getElementById('ed-p3').value.trim(), p4=document.getElementById('ed-p4').value.trim();
+    const s1=parseInt(document.getElementById('ed-s1').value), s2=parseInt(document.getElementById('ed-s2').value);
+    const wEl=document.querySelector('input[name="ed-winner"]:checked');
+    if (!p1||!p2||!p3||!p4) { toast('Preencha todos os nomes.',true); return; }
+    if (isNaN(s1)||isNaN(s2)) { toast('Placares inválidos.',true); return; }
+    if (!wEl) { toast('Selecione a dupla vencedora.',true); return; }
+    const btn=document.getElementById('btn-save-edit'); btn.disabled=true; btn.textContent='Salvando…';
     try {
-      const { error } = await db.from('partidas').update({
-        dupla1_jogador1: p1, dupla1_jogador2: p2,
-        dupla2_jogador1: p3, dupla2_jogador2: p4,
-        placar_final_dupla1: s1, placar_final_dupla2: s2,
-        dupla_vencedora: parseInt(winnerEl.value)
-      }).eq('id', editingId);
-
+      const { error } = await db.from('partidas').update({ dupla1_jogador1:p1, dupla1_jogador2:p2, dupla2_jogador1:p3, dupla2_jogador2:p4, placar_final_dupla1:s1, placar_final_dupla2:s2, dupla_vencedora:parseInt(wEl.value) }).eq('id',editingId);
       if (error) throw error;
+      toast('Partida atualizada!'); closeEdit(); loadHistory();
+    } catch(e) { toast('Erro: '+e.message,true); }
+    finally { btn.disabled=false; btn.textContent='✓ Salvar'; }
+  }
 
-      toast('Partida atualizada!');
-      closeEdit();
-      loadHistory(); // reload list
-    } catch(e) {
-      toast('Erro ao salvar: ' + e.message, true);
-    } finally {
-      btn.disabled = false; btn.textContent = '✓ Salvar Alterações';
+  function showDeleteConfirm() {
+    document.getElementById('delete-confirm-row').classList.add('show');
+    document.getElementById('btn-delete-partida').style.display='none';
+  }
+  function hideDeleteConfirm() {
+    document.getElementById('delete-confirm-row').classList.remove('show');
+    document.getElementById('btn-delete-partida').style.display='';
+  }
+
+  async function confirmDelete() {
+    if (!editingId) return;
+    const btn=document.getElementById('btn-confirm-delete'); btn.disabled=true; btn.textContent='Excluindo…';
+    try {
+      const { error } = await db.from('partidas').delete().eq('id',editingId);
+      if (error) throw error;
+      toast('Partida excluída.'); closeEdit(); loadHistory();
+    } catch(e) { toast('Erro ao excluir: '+e.message,true); btn.disabled=false; btn.textContent='Sim, excluir'; }
+  }
+
+  // ─── Ranking ─────────────────────────────────────────────
+  async function loadRanking() {
+    const loading=document.getElementById('rank-loading'), content=document.getElementById('rank-content');
+    loading.style.display='flex'; content.style.display='none';
+    try {
+      const { data, error } = await db.from('partidas').select('dupla1_jogador1,dupla1_jogador2,dupla2_jogador1,dupla2_jogador2,dupla_vencedora').not('dupla_vencedora','is',null);
+      if (error) throw error;
+      loading.style.display='none'; content.style.display='block';
+      const players={};
+      const ensure=n=>{ if(!players[n]) players[n]={wins:0,games:0}; };
+      data.forEach(p=>{
+        [p.dupla1_jogador1,p.dupla1_jogador2,p.dupla2_jogador1,p.dupla2_jogador2].forEach(n=>{ensure(n);players[n].games++;});
+        if(p.dupla_vencedora===1){players[p.dupla1_jogador1].wins++;players[p.dupla1_jogador2].wins++;}
+        if(p.dupla_vencedora===2){players[p.dupla2_jogador1].wins++;players[p.dupla2_jogador2].wins++;}
+      });
+      const sorted=Object.entries(players).sort((a,b)=>b[1].wins-a[1].wins||b[1].games-a[1].games);
+      const medals=['🥇','🥈','🥉'];
+      const tbody=document.getElementById('rank-body'), empty=document.getElementById('rank-empty');
+      if (!sorted.length) { tbody.innerHTML=''; empty.style.display='block'; }
+      else {
+        empty.style.display='none';
+        tbody.innerHTML=sorted.map(([name,s],i)=>{
+          const pct=s.games?Math.round(s.wins/s.games*100):0;
+          return `<tr><td class="rank-num ${i<3?`rank-${i+1}`:''}">${i<3?medals[i]:i+1}</td><td style="text-align:left;padding-left:14px;font-weight:600">${esc(name)}</td><td><strong>${s.wins}</strong></td><td>${s.games}</td><td>${pct}%</td></tr>`;
+        }).join('');
+      }
+      renderGroupRankings(data);
+    } catch(e) { loading.style.display='none'; toast('Erro: '+e.message,true); }
+  }
+
+  function renderGroupRankings(data) {
+    const container=document.getElementById('group-rankings'), empty=document.getElementById('group-empty');
+    container.innerHTML='';
+    const groups={};
+    data.forEach(p=>{
+      const key=[p.dupla1_jogador1,p.dupla1_jogador2,p.dupla2_jogador1,p.dupla2_jogador2].sort().join('|||');
+      if(!groups[key]) groups[key]={ players:[p.dupla1_jogador1,p.dupla1_jogador2,p.dupla2_jogador1,p.dupla2_jogador2].sort(), games:[] };
+      groups[key].games.push(p);
+    });
+    const sorted=Object.values(groups).sort((a,b)=>b.games.length-a.games.length);
+    if (!sorted.length) { empty.style.display='block'; return; }
+    empty.style.display='none';
+    sorted.forEach((group,gi)=>{
+      const gp={};
+      group.players.forEach(n=>{gp[n]={wins:0,games:0};});
+      group.games.forEach(p=>{
+        [p.dupla1_jogador1,p.dupla1_jogador2,p.dupla2_jogador1,p.dupla2_jogador2].forEach(n=>{if(gp[n])gp[n].games++;});
+        if(p.dupla_vencedora===1){gp[p.dupla1_jogador1].wins++;gp[p.dupla1_jogador2].wins++;}
+        if(p.dupla_vencedora===2){gp[p.dupla2_jogador1].wins++;gp[p.dupla2_jogador2].wins++;}
+      });
+      const gSorted=Object.entries(gp).sort((a,b)=>b[1].wins-a[1].wins||b[1].games-a[1].games);
+      const medals=['🥇','🥈','🥉','4️⃣'];
+      const bodyId=`gb-${gi}`, chevId=`gc-${gi}`;
+      const sec=document.createElement('div'); sec.className='group-section';
+      sec.innerHTML=`<div class="group-header" onclick="toggleGroup('${bodyId}','${chevId}')">
+        <div class="group-title">${group.players.map(esc).join(' · ')}<span>${group.games.length} partida${group.games.length!==1?'s':''}</span></div>
+        <span class="group-chevron" id="${chevId}">▼</span>
+      </div>
+      <div class="group-body" id="${bodyId}">
+        <table><thead><tr><th style="width:44px">#</th><th style="text-align:left;padding-left:14px">Jogador</th><th>Vitórias</th><th>Partidas</th><th>Win%</th></tr></thead>
+        <tbody>${gSorted.map(([name,s],i)=>{const pct=s.games?Math.round(s.wins/s.games*100):0;return `<tr><td class="rank-num ${i<3?`rank-${i+1}`:''}">${medals[i]||i+1}</td><td style="text-align:left;padding-left:14px;font-weight:600">${esc(name)}</td><td><strong>${s.wins}</strong></td><td>${s.games}</td><td>${pct}%</td></tr>`;}).join('')}</tbody>
+        </table></div>`;
+      container.appendChild(sec);
+    });
+  }
+
+  function toggleGroup(bodyId,chevId) {
+    const body=document.getElementById(bodyId), chev=document.getElementById(chevId);
+    const isOpen=body.style.display!=='none';
+    body.style.display=isOpen?'none':'';
+    chev.classList.toggle('open',!isOpen);
+  }
+
+  // ─── Jogadores ───────────────────────────────────────────
+  let allPartidasCache = null;
+
+  async function loadJogadores() {
+    const loading=document.getElementById('jogadores-loading'), content=document.getElementById('jogadores-content');
+    loading.style.display='flex'; content.style.display='none';
+    try {
+      const { data, error } = await db.from('partidas').select('*').not('dupla_vencedora','is',null).order('data',{ascending:false});
+      if (error) throw error;
+      allPartidasCache = data;
+      loading.style.display='none'; content.style.display='block';
+      const names=new Set();
+      data.forEach(p=>[p.dupla1_jogador1,p.dupla1_jogador2,p.dupla2_jogador1,p.dupla2_jogador2].forEach(n=>{if(n)names.add(n);}));
+      const grid=document.getElementById('player-select-grid');
+      grid.innerHTML='';
+      [...names].sort().forEach(name=>{
+        const btn=document.createElement('button');
+        btn.className='player-btn'; btn.textContent=name;
+        btn.onclick=()=>showPlayerStats(name,btn);
+        grid.appendChild(btn);
+      });
+      if (!names.size) grid.innerHTML='<span style="color:var(--text-muted);font-size:0.85rem">Nenhum jogador com histórico ainda.</span>';
+      document.getElementById('player-stats-wrap').style.display='none';
+      document.getElementById('no-player-msg').style.display='block';
+    } catch(e) { loading.style.display='none'; toast('Erro: '+e.message,true); }
+  }
+
+  function showPlayerStats(name, btnEl) {
+    document.querySelectorAll('.player-btn').forEach(b=>b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    document.getElementById('no-player-msg').style.display='none';
+    document.getElementById('player-stats-wrap').style.display='block';
+
+    const data = allPartidasCache || [];
+    const partidas = data.filter(p =>
+      p.dupla1_jogador1===name||p.dupla1_jogador2===name||
+      p.dupla2_jogador1===name||p.dupla2_jogador2===name
+    );
+
+    let wins=0, totalMyScore=0, totalOppScore=0, scores=[], margins=[];
+    const partners={}, opponents={};
+
+    partidas.forEach(p=>{
+      const inD1=p.dupla1_jogador1===name||p.dupla1_jogador2===name;
+      const myScore  = inD1?p.placar_final_dupla1:p.placar_final_dupla2;
+      const oppScore = inD1?p.placar_final_dupla2:p.placar_final_dupla1;
+      const won=(inD1&&p.dupla_vencedora===1)||(!inD1&&p.dupla_vencedora===2);
+      if(won) wins++;
+      totalMyScore+=myScore; totalOppScore+=oppScore;
+      scores.push(myScore);
+      margins.push(myScore-oppScore);
+
+      const partner=inD1?(p.dupla1_jogador1===name?p.dupla1_jogador2:p.dupla1_jogador1):(p.dupla2_jogador1===name?p.dupla2_jogador2:p.dupla2_jogador1);
+      if(!partners[partner])partners[partner]={games:0,wins:0};
+      partners[partner].games++; if(won)partners[partner].wins++;
+
+      const opp1=inD1?p.dupla2_jogador1:p.dupla1_jogador1;
+      const opp2=inD1?p.dupla2_jogador2:p.dupla1_jogador2;
+      [opp1,opp2].forEach(opp=>{
+        if(!opponents[opp])opponents[opp]={games:0,wins:0};
+        opponents[opp].games++; if(won)opponents[opp].wins++;
+      });
+    });
+
+    const total=partidas.length;
+    const winPct=total?Math.round(wins/total*100):0;
+    const avgScore=total?Math.round(totalMyScore/total):0;
+    const bestScore=scores.length?Math.max(...scores):0;
+    const avgMargin=total?Math.round(margins.reduce((a,b)=>a+b,0)/total):0;
+
+    document.getElementById('ps-name').textContent='&#128101; '+name;
+    document.getElementById('ps-cards').innerHTML=`
+      <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Partidas</div></div>
+      <div class="stat-card"><div class="stat-val">${wins}</div><div class="stat-lbl">Vitórias</div></div>
+      <div class="stat-card"><div class="stat-val">${winPct}%</div><div class="stat-lbl">Win Rate</div></div>
+      <div class="stat-card"><div class="stat-val">${avgScore}</div><div class="stat-lbl">Média de Pts</div></div>
+      <div class="stat-card"><div class="stat-val">${bestScore}</div><div class="stat-lbl">Maior Placar</div></div>
+      <div class="stat-card"><div class="stat-val">${total-wins}</div><div class="stat-lbl">Derrotas</div></div>
+      <div class="stat-card"><div class="stat-val">${avgMargin>0?'+':''}${avgMargin}</div><div class="stat-lbl">Saldo Médio</div></div>
+      <div class="stat-card"><div class="stat-val">${Math.round(totalOppScore/(total||1))}</div><div class="stat-lbl">Média Adv.</div></div>
+    `;
+
+    // Partners
+    const partnersSorted=Object.entries(partners).sort((a,b)=>b[1].games-a[1].games);
+    const ptbody=document.getElementById('ps-partners'), ptempty=document.getElementById('ps-partners-empty');
+    if (!partnersSorted.length) { ptbody.innerHTML=''; ptempty.style.display='block'; }
+    else {
+      ptempty.style.display='none';
+      ptbody.innerHTML=partnersSorted.map(([nm,s])=>{
+        const pct=s.games?Math.round(s.wins/s.games*100):0;
+        return `<tr><td style="text-align:left;padding-left:10px;font-weight:600">${esc(nm)}</td><td>${s.games}</td><td>${s.wins}</td><td>${pct}%</td></tr>`;
+      }).join('');
     }
+
+    // Opponents
+    const oppSorted=Object.entries(opponents).sort((a,b)=>b[1].games-a[1].games);
+    const otbody=document.getElementById('ps-opponents'), otempty=document.getElementById('ps-opponents-empty');
+    if (!oppSorted.length) { otbody.innerHTML=''; otempty.style.display='block'; }
+    else {
+      otempty.style.display='none';
+      otbody.innerHTML=oppSorted.map(([nm,s])=>{
+        const pct=s.games?Math.round(s.wins/s.games*100):0;
+        return `<tr><td style="text-align:left;padding-left:10px;font-weight:600">${esc(nm)}</td><td>${s.games}</td><td>${s.wins}</td><td>${pct}%</td></tr>`;
+      }).join('');
+    }
+
+    // Recent games
+    const recent=document.getElementById('ps-recent');
+    if (!partidas.length) { recent.innerHTML='<div class="empty-state">Sem partidas.</div>'; return; }
+    recent.innerHTML=partidas.slice(0,8).map(p=>{
+      const inD1=p.dupla1_jogador1===name||p.dupla1_jogador2===name;
+      const myScore=inD1?p.placar_final_dupla1:p.placar_final_dupla2;
+      const oppScore=inD1?p.placar_final_dupla2:p.placar_final_dupla1;
+      const won=(inD1&&p.dupla_vencedora===1)||(!inD1&&p.dupla_vencedora===2);
+      const partner=inD1?(p.dupla1_jogador1===name?p.dupla1_jogador2:p.dupla1_jogador1):(p.dupla2_jogador1===name?p.dupla2_jogador2:p.dupla2_jogador1);
+      const opp1=inD1?p.dupla2_jogador1:p.dupla1_jogador1, opp2=inD1?p.dupla2_jogador2:p.dupla1_jogador2;
+      const date=new Date(p.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+      return `<div class="recent-game">
+        <div>
+          <div class="rg-result ${won?'rg-win':'rg-loss'}">${won?'✓ Vitória':'✗ Derrota'}</div>
+          <div class="rg-partner">Com ${esc(partner)} vs ${esc(opp1)} & ${esc(opp2)}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="rg-score">${myScore} × ${oppScore}</div>
+          <div class="rg-date">${date}</div>
+        </div>
+      </div>`;
+    }).join('');
   }
 
   // ─── Helpers ─────────────────────────────────────────────
-  function fn(name) { return name ? name.split(' ')[0] : name; }
-
-  function esc(v) {
-    if (!v) return '';
-    return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
+  function fn(name) { return name?name.split(' ')[0]:name; }
+  function esc(v) { if(!v)return''; return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   let toastTimer;
-  function toast(msg, isError = false) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = 'show' + (isError ? ' error' : '');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { el.className = ''; }, 3500);
+  function toast(msg,isError=false) {
+    const el=document.getElementById('toast'); el.textContent=msg;
+    el.className='show'+(isError?' error':'');
+    clearTimeout(toastTimer); toastTimer=setTimeout(()=>{el.className='';},3500);
   }
 
   // ─── Init ─────────────────────────────────────────────────
   loadGame();
-  if (game) document.getElementById('dot-jogo').style.display = 'inline-block';
+  if (game) document.getElementById('dot-jogo').style.display='inline-block';
   goTo('nova');
 </script>
 </body>
