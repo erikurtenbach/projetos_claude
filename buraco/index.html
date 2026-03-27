@@ -264,6 +264,25 @@
     #toast.show { transform: translateX(-50%) translateY(0); }
     #toast.error { background: #4a1e1e; border-color: #c0392b; }
 
+    /* ── Score card enhanced ── */
+    .sc-players { font-size:0.88rem; color:var(--text); font-weight:600; line-height:1.8; margin-bottom:8px; }
+    .sc-prog-wrap { display:flex; align-items:center; gap:8px; margin-top:10px; }
+    .sc-prog-wrap .progress-outer { flex:1; margin-top:0; }
+    .sc-pct { font-size:0.75rem; font-weight:700; color:var(--text-muted); min-width:34px; text-align:right; }
+    /* ── Surrender ── */
+    .btn-surrender { width:100%; background:transparent; border:2px solid #6b6b8a; color:#a0a0c0; padding:10px; border-radius:10px; font-size:0.88rem; cursor:pointer; margin-top:8px; transition:all 0.2s; }
+    .btn-surrender:hover { border-color:#9090c0; color:#c0c0e8; background:rgba(100,100,180,0.1); }
+    #surrender-overlay { display:none; position:fixed; inset:0; background:#000d; z-index:210; align-items:center; justify-content:center; }
+    #surrender-overlay.show { display:flex; }
+    .surrender-box { background:linear-gradient(135deg,#0d0a18,#1a1030); border:2px solid #5a4080; border-radius:18px; padding:32px 28px; max-width:380px; width:92%; text-align:center; box-shadow:0 8px 40px #0009; }
+    .surrender-box h3 { color:#c0b0e8; font-size:1.1rem; margin-bottom:0; }
+    .surrender-team-btn { flex:1; background:var(--input-bg); border:2px solid var(--border); color:var(--text); padding:14px 10px; border-radius:10px; cursor:pointer; font-size:0.9rem; font-weight:700; transition:all 0.15s; line-height:1.5; }
+    .surrender-team-btn:hover { border-color:#9090c0; background:#2a2040; }
+    /* ── Teardrops ── */
+    #teardrops { position:fixed; inset:0; pointer-events:none; z-index:250; overflow:hidden; }
+    .teardrop { position:absolute; top:-40px; background:radial-gradient(ellipse at 50% 30%,#88aaff,#3366dd); border-radius:50% 50% 60% 60%; opacity:0.85; animation:fall linear forwards; }
+    @keyframes fall { 0%{transform:translateY(0) rotate(-5deg);opacity:0.9} 80%{opacity:0.7} 100%{transform:translateY(110vh) rotate(5deg);opacity:0} }
+
     @media (max-width: 600px) {
       .setup-layout { grid-template-columns: 1fr; }
       .known-sidebar { position: static; }
@@ -379,8 +398,26 @@
   <div id="no-game" class="no-game-msg" style="display:none"><p>Nenhuma partida em andamento.</p><button onclick="goTo('nova')">Iniciar Nova Partida</button></div>
   <div id="game-active" style="display:none">
     <div class="score-cards">
-      <div class="score-card" id="sc-t1"><div class="team-label">Dupla 1</div><div class="players-label" id="sc-t1-players"></div><div class="score-num" id="sc-t1-score">0</div><div class="score-status" id="sc-t1-status">faltam 2000 pts</div><div class="progress-outer"><div class="prog-inner prog-t1" id="prog-t1" style="width:0%"></div></div></div>
-      <div class="score-card" id="sc-t2"><div class="team-label">Dupla 2</div><div class="players-label" id="sc-t2-players"></div><div class="score-num" id="sc-t2-score">0</div><div class="score-status" id="sc-t2-status">faltam 2000 pts</div><div class="progress-outer"><div class="prog-inner prog-t2" id="prog-t2" style="width:0%"></div></div></div>
+      <div class="score-card" id="sc-t1">
+        <div class="team-label">🔵 Dupla 1</div>
+        <div class="sc-players" id="sc-t1-players"></div>
+        <div class="score-num" id="sc-t1-score">0</div>
+        <div class="sc-prog-wrap">
+          <div class="progress-outer"><div class="prog-inner prog-t1" id="prog-t1" style="width:0%"></div></div>
+          <span class="sc-pct" id="sc-t1-pct">0%</span>
+        </div>
+        <div class="score-status" id="sc-t1-status">faltam 2000 pts</div>
+      </div>
+      <div class="score-card" id="sc-t2">
+        <div class="team-label">🟥 Dupla 2</div>
+        <div class="sc-players" id="sc-t2-players"></div>
+        <div class="score-num" id="sc-t2-score">0</div>
+        <div class="sc-prog-wrap">
+          <div class="progress-outer"><div class="prog-inner prog-t2" id="prog-t2" style="width:0%"></div></div>
+          <span class="sc-pct" id="sc-t2-pct">0%</span>
+        </div>
+        <div class="score-status" id="sc-t2-status">faltam 2000 pts</div>
+      </div>
     </div>
     <div class="panel">
       <div class="panel-title" id="round-title">Rodada 1</div>
@@ -392,7 +429,8 @@
         <div><span id="pv-t1-name">D1</span>: <span id="pv-t1-pts" style="color:var(--text-muted)">—</span></div>
         <div><span id="pv-t2-name">D2</span>: <span id="pv-t2-pts" style="color:var(--text-muted)">—</span></div>
       </div>
-      <button class="btn-confirm" id="btn-confirm" onclick="confirmRound()">&#10003; Confirmar Rodada</button>
+      <button class="btn-confirm" id="btn-confirm" onclick="confirmRound()">✓ Confirmar Rodada</button>
+      <button class="btn-surrender" id="btn-surrender" onclick="openSurrender()">🏳️ Surrender</button>
     </div>
     <div class="panel">
       <div class="panel-title">&#128203; Rodadas desta Partida</div>
@@ -544,6 +582,20 @@
   </div>
 </div>
 
+<!-- ════ SURRENDER OVERLAY ════ -->
+<div id="surrender-overlay">
+  <div class="surrender-box">
+    <div style="font-size:2.5rem;margin-bottom:8px">🏳️</div>
+    <h3>Qual dupla está se rendendo?</h3>
+    <p style="font-size:0.85rem;color:#9080b0;margin:10px 0 20px">A dupla que se render perde a partida imediatamente.</p>
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <button class="surrender-team-btn" id="surr-btn-1" onclick="confirmSurrender(1)"></button>
+      <button class="surrender-team-btn" id="surr-btn-2" onclick="confirmSurrender(2)"></button>
+    </div>
+    <button onclick="closeSurrender()" style="background:transparent;border:1px solid #3a3060;color:#8080a0;padding:9px 20px;border-radius:8px;cursor:pointer;font-size:0.85rem;width:100%">Cancelar</button>
+  </div>
+</div>
+
 <!-- ════ EDIT OVERLAY ════ -->
 <div id="edit-overlay">
   <div class="edit-box">
@@ -601,6 +653,7 @@
   </div>
 </div>
 
+<div id="teardrops"></div>
 <div id="toast"></div>
 
 <script>
@@ -703,7 +756,7 @@
     if (!p1||!p2||!p3||!p4) { toast('Preencha os nomes dos 4 jogadores.',true); return; }
     const btn=document.getElementById('btn-start'); btn.disabled=true; btn.textContent='Criando…';
     try {
-      const { data, error } = await db.from('partidas').insert({ dupla1_jogador1:p1, dupla1_jogador2:p2, dupla2_jogador1:p3, dupla2_jogador2:p4, placar_final_dupla1:0, placar_final_dupla2:0, dupla_vencedora:null }).select().single();
+      const { data, error } = await db.from('partidas').insert({ dupla1_jogador1:p1, dupla1_jogador2:p2, dupla2_jogador1:p3, dupla2_jogador2:p4, placar_final_dupla1:0, placar_final_dupla2:0, dupla_vencedora:null, status: 'em_andamento' }).select().single();
       if (error) throw error;
       game = { partida_id:data.id, p1,p2,p3,p4, acc1:0, acc2:0, rounds:[], roundNum:1 };
       saveGame(); toast('Partida iniciada!'); goTo('jogo');
@@ -715,8 +768,8 @@
   function renderGame() {
     if (!game) { document.getElementById('no-game').style.display='block'; document.getElementById('game-active').style.display='none'; document.getElementById('dot-jogo').style.display='none'; return; }
     document.getElementById('no-game').style.display='none'; document.getElementById('game-active').style.display='block'; document.getElementById('dot-jogo').style.display='inline-block';
-    document.getElementById('sc-t1-players').textContent=game.p1+' & '+game.p2;
-    document.getElementById('sc-t2-players').textContent=game.p3+' & '+game.p4;
+    document.getElementById('sc-t1-players').innerHTML=esc(game.p1)+'<br>'+esc(game.p2);
+    document.getElementById('sc-t2-players').innerHTML=esc(game.p3)+'<br>'+esc(game.p4);
     document.getElementById('ri-t1-label').textContent=fn(game.p1)+' & '+fn(game.p2);
     document.getElementById('ri-t2-label').textContent=fn(game.p3)+' & '+fn(game.p4);
     document.getElementById('pv-t1-name').textContent=fn(game.p1);
@@ -732,8 +785,12 @@
     const l1=Math.max(0,GOAL-game.acc1), l2=Math.max(0,GOAL-game.acc2);
     document.getElementById('sc-t1-status').textContent=l1>0?`faltam ${l1} pts`:'✓ Meta atingida!';
     document.getElementById('sc-t2-status').textContent=l2>0?`faltam ${l2} pts`:'✓ Meta atingida!';
-    document.getElementById('prog-t1').style.width=Math.min(100,(game.acc1/GOAL)*100)+'%';
-    document.getElementById('prog-t2').style.width=Math.min(100,(game.acc2/GOAL)*100)+'%';
+    const pct1=Math.min(100,Math.round((game.acc1/GOAL)*100));
+    const pct2=Math.min(100,Math.round((game.acc2/GOAL)*100));
+    document.getElementById('prog-t1').style.width=pct1+'%';
+    document.getElementById('prog-t2').style.width=pct2+'%';
+    document.getElementById('sc-t1-pct').textContent=pct1+'%';
+    document.getElementById('sc-t2-pct').textContent=pct2+'%';
     document.getElementById('sc-t1').classList.toggle('leading', game.acc1>=game.acc2 && game.rounds.length>0);
     document.getElementById('sc-t2').classList.toggle('leading', game.acc2>game.acc1 && game.rounds.length>0);
   }
@@ -762,6 +819,7 @@
     try {
       const { error } = await db.from('rodadas').insert({ partida_id:game.partida_id, numero_rodada:game.roundNum, pontos_dupla1:v1, pontos_dupla2:v2 });
       if (error) throw error;
+      await db.from('partidas').update({ placar_final_dupla1: game.acc1+v1, placar_final_dupla2: game.acc2+v2, num_rodadas: game.roundNum }).eq('id', game.partida_id);
       game.acc1+=v1; game.acc2+=v2;
       game.rounds.push({ num:game.roundNum, d1:v1, d2:v2, acc1:game.acc1, acc2:game.acc2 });
       game.roundNum++; saveGame();
@@ -773,12 +831,31 @@
     finally { btn.disabled=false; btn.textContent='✓ Confirmar Rodada'; }
   }
 
-  async function finishGame() {
-    const winner = (game.acc1>=GOAL&&game.acc2>=GOAL) ? (game.acc1>=game.acc2?1:2) : (game.acc1>=GOAL?1:2);
-    try { await db.from('partidas').update({ placar_final_dupla1:game.acc1, placar_final_dupla2:game.acc2, dupla_vencedora:winner }).eq('id',game.partida_id); } catch(e) { console.error(e); }
-    document.getElementById('win-title').textContent=(winner===1?'Dupla 1':'Dupla 2')+' Venceu! 🎉';
-    document.getElementById('win-players').textContent=winner===1?`${game.p1} & ${game.p2}`:`${game.p3} & ${game.p4}`;
-    document.getElementById('win-score').textContent=`${game.acc1} × ${game.acc2} pts`;
+  async function finishGame(surrenderData=null) {
+    let winner, isSurrender = false;
+    if (surrenderData) {
+      winner = surrenderData.losingTeam === 1 ? 2 : 1;
+      isSurrender = true;
+    } else {
+      winner = (game.acc1>=GOAL && game.acc2>=GOAL) ? (game.acc1>=game.acc2?1:2) : (game.acc1>=GOAL?1:2);
+    }
+    try {
+      await db.from('partidas').update({
+        placar_final_dupla1: game.acc1, placar_final_dupla2: game.acc2,
+        dupla_vencedora: winner, status: 'finalizada',
+        num_rodadas: game.rounds.length,
+        surrender: isSurrender,
+        surrender_dupla: isSurrender ? surrenderData.losingTeam : null
+      }).eq('id', game.partida_id);
+    } catch(e) { console.error(e); }
+    const winPlayers = winner===1 ? `${game.p1} & ${game.p2}` : `${game.p3} & ${game.p4}`;
+    document.getElementById('win-title').textContent = isSurrender
+      ? (winner===1?'🔵 Dupla 1 Venceu!':'🟥 Dupla 2 Venceu!')
+      : (winner===1?'Dupla 1':'Dupla 2')+' Venceu! 🎉';
+    document.getElementById('win-players').textContent = winPlayers;
+    document.getElementById('win-score').textContent = isSurrender
+      ? `Surrender — ${game.acc1} × ${game.acc2} pts`
+      : `${game.acc1} × ${game.acc2} pts`;
     document.getElementById('winner-overlay').classList.add('show');
     game=null; saveGame(); document.getElementById('dot-jogo').style.display='none';
   }
@@ -790,30 +867,64 @@
     const loading=document.getElementById('hist-loading'), list=document.getElementById('hist-list'), empty=document.getElementById('hist-empty');
     loading.style.display='flex'; list.innerHTML=''; empty.style.display='none';
     try {
-      const { data, error } = await db.from('partidas').select('*').not('dupla_vencedora','is',null).order('data',{ascending:false}).limit(60);
+      const { data, error } = await db.from('partidas').select('*').order('data',{ascending:false}).limit(60);
       if (error) throw error;
       loading.style.display='none';
-      if (!data.length) { empty.style.display='block'; return; }
-      list.innerHTML = data.map(p => {
-        const w=p.dupla_vencedora;
-        const date=new Date(p.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-        const pd=encodeURIComponent(JSON.stringify(p));
-        return `<div class="history-card">
+      const visible = data.filter(p => p.status==='em_andamento' || p.dupla_vencedora!=null);
+      if (!visible.length) { empty.style.display='block'; return; }
+      list.innerHTML = visible.map(p => {
+        const date = new Date(p.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+        if (p.status === 'em_andamento') {
+          return `<div class="history-card" style="border-color:#5a4080">
           <div class="hc-header">
-            <span class="hc-date">&#128197; ${date}</span>
+            <span class="hc-date">📅 ${date}</span>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <span class="winner-badge">&#127942; Dupla ${w} venceu</span>
-              <button class="edit-btn" onclick="openEdit(decodeURIComponent('${pd}'))">&#9998; Editar</button>
+              <span class="winner-badge" style="background:#5a4080;color:#e0d0ff">⏳ Em andamento</span>
+              <button class="edit-btn" style="border-color:#9090c0;color:#b0b0e0" onclick="resumeGame(${p.id})">▶ Retomar</button>
             </div>
           </div>
           <div class="hc-teams">
-            <div class="hc-team ${w===1?'winner':''}"><div class="hc-name">${esc(p.dupla1_jogador1)}<br>${esc(p.dupla1_jogador2)}</div><div class="hc-score">${p.placar_final_dupla1}</div></div>
-            <div class="hc-vs">&#215;</div>
-            <div class="hc-team ${w===2?'winner':''}"><div class="hc-name">${esc(p.dupla2_jogador1)}<br>${esc(p.dupla2_jogador2)}</div><div class="hc-score">${p.placar_final_dupla2}</div></div>
+            <div class="hc-team"><div class="hc-name">${esc(p.dupla1_jogador1)}<br>${esc(p.dupla1_jogador2)}</div><div class="hc-score" style="color:#6080ff">${p.placar_final_dupla1||0}</div></div>
+            <div class="hc-vs">×</div>
+            <div class="hc-team" style="text-align:right"><div class="hc-name">${esc(p.dupla2_jogador1)}<br>${esc(p.dupla2_jogador2)}</div><div class="hc-score" style="color:var(--wine-light)">${p.placar_final_dupla2||0}</div></div>
           </div>
         </div>`;
+        }
+        const w = p.dupla_vencedora;
+        const pd = encodeURIComponent(JSON.stringify(p));
+        const badge = p.surrender
+          ? `<span class="winner-badge" style="background:#4a3060;color:#d0c0ff">🏳️ Surrender — Dupla ${p.surrender_dupla} desistiu</span>`
+          : `<span class="winner-badge">🏆 Dupla ${w} venceu</span>`;
+        return `<div class="history-card">
+        <div class="hc-header">
+          <span class="hc-date">📅 ${date}</span>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            ${badge}
+            <button class="edit-btn" onclick="openEdit(decodeURIComponent('${pd}'))">✏️ Editar</button>
+          </div>
+        </div>
+        <div class="hc-teams">
+          <div class="hc-team ${w===1?'winner':''}"><div class="hc-name">${esc(p.dupla1_jogador1)}<br>${esc(p.dupla1_jogador2)}</div><div class="hc-score">${p.placar_final_dupla1}</div></div>
+          <div class="hc-vs">×</div>
+          <div class="hc-team ${w===2?'winner':''}"><div class="hc-name">${esc(p.dupla2_jogador1)}<br>${esc(p.dupla2_jogador2)}</div><div class="hc-score">${p.placar_final_dupla2}</div></div>
+        </div>
+      </div>`;
       }).join('');
     } catch(e) { loading.style.display='none'; toast('Erro: '+e.message,true); }
+  }
+
+  async function resumeGame(pid) {
+    try {
+      const { data: p } = await db.from('partidas').select('*').eq('id', pid).single();
+      const { data: rds } = await db.from('rodadas').select('*').eq('partida_id', pid).order('numero_rodada');
+      let acc1=0, acc2=0;
+      const rounds = (rds||[]).map(r => {
+        acc1+=r.pontos_dupla1; acc2+=r.pontos_dupla2;
+        return { num:r.numero_rodada, d1:r.pontos_dupla1, d2:r.pontos_dupla2, acc1, acc2 };
+      });
+      game = { partida_id:p.id, p1:p.dupla1_jogador1, p2:p.dupla1_jogador2, p3:p.dupla2_jogador1, p4:p.dupla2_jogador2, acc1, acc2, rounds, roundNum:rounds.length+1 };
+      saveGame(); toast('Partida retomada!'); goTo('jogo');
+    } catch(e) { toast('Erro ao retomar: '+e.message, true); }
   }
 
   // ─── Edit modal ───────────────────────────────────────────
@@ -1063,7 +1174,9 @@
 
     // Partidas reais: estatísticas de pontuação
     const realTotal=partidas.length;
-    const avgScore=realTotal?Math.round(totalMyScore/realTotal):0;
+    let totalRounds=0;
+    partidas.forEach(p=>{ totalRounds+=(p.num_rodadas||0); });
+    const avgScore=totalRounds?Math.round(totalMyScore/totalRounds):0;
     const bestScore=scores.length?Math.max(...scores):0;
     const avgMargin=realTotal?Math.round(margins.reduce((a,b)=>a+b,0)/realTotal):0;
     const avgOppScore=Math.round(totalOppScore/(realTotal||1));
@@ -1074,17 +1187,23 @@
     const totalGames=realTotal+leg.games;
     const totalLosses=totalGames-totalWins;
     const winPct=totalGames?Math.round(totalWins/totalGames*100):0;
+    const surrenders=partidas.filter(p=>{
+      if(!p.surrender)return false;
+      const inD1=p.dupla1_jogador1===name||p.dupla1_jogador2===name;
+      return (inD1&&p.surrender_dupla===1)||(!inD1&&p.surrender_dupla===2);
+    }).length;
 
     document.getElementById('ps-name').textContent='👤 '+name;
     document.getElementById('ps-cards').innerHTML=`
       <div class="stat-card"><div class="stat-val">${totalGames}</div><div class="stat-lbl">Partidas</div></div>
       <div class="stat-card"><div class="stat-val">${totalWins}</div><div class="stat-lbl">Vitórias</div></div>
       <div class="stat-card"><div class="stat-val">${winPct}%</div><div class="stat-lbl">Win Rate</div></div>
-      <div class="stat-card"><div class="stat-val">${avgScore||'–'}</div><div class="stat-lbl">Média de Pts${realTotal?'':' *'}</div></div>
+      <div class="stat-card"><div class="stat-val">${avgScore||'–'}</div><div class="stat-lbl">Média/Rodada${realTotal?'':' *'}</div></div>
       <div class="stat-card"><div class="stat-val">${bestScore||'–'}</div><div class="stat-lbl">Maior Placar</div></div>
       <div class="stat-card"><div class="stat-val">${totalLosses}</div><div class="stat-lbl">Derrotas</div></div>
       <div class="stat-card"><div class="stat-val">${realTotal?`${avgMargin>0?'+':''}${avgMargin}`:'–'}</div><div class="stat-lbl">Saldo Médio</div></div>
       <div class="stat-card"><div class="stat-val">${realTotal?avgOppScore:'–'}</div><div class="stat-lbl">Média Adv.</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:#9090cc">${surrenders}</div><div class="stat-lbl">Surrenders</div></div>
     `;
     if (leg.games>0) document.getElementById('ps-cards').innerHTML +=
       `<p style="grid-column:1/-1;font-size:0.72rem;color:var(--text-muted);margin-top:4px;text-align:center">★ Inclui ${leg.games} partidas e ${leg.wins} vitórias do histórico legado. Estatísticas de pontuação baseadas em ${realTotal} partida${realTotal!==1?'s':''} com placar registrado.</p>`;
@@ -1216,6 +1335,34 @@
     toast('Duplas copiadas para Nova Partida!');
     goTo('nova');
   }
+
+  // ─── Surrender ────────────────────────────────────────────
+  function openSurrender() {
+    if (!game) return;
+    document.getElementById('surr-btn-1').innerHTML = '🔵 '+esc(game.p1)+' & '+esc(game.p2)+'<br><small style="font-weight:400;opacity:0.7">Dupla 1</small>';
+    document.getElementById('surr-btn-2').innerHTML = '🟥 '+esc(game.p3)+' & '+esc(game.p4)+'<br><small style="font-weight:400;opacity:0.7">Dupla 2</small>';
+    document.getElementById('surrender-overlay').classList.add('show');
+  }
+  function closeSurrender() { document.getElementById('surrender-overlay').classList.remove('show'); }
+  async function confirmSurrender(losingTeam) {
+    closeSurrender();
+    showTeardrops();
+    await new Promise(r=>setTimeout(r,2800));
+    clearTeardrops();
+    await finishGame({ losingTeam });
+  }
+  function showTeardrops() {
+    const c=document.getElementById('teardrops'); c.innerHTML='';
+    for(let i=0;i<40;i++){
+      const d=document.createElement('div'); d.className='teardrop';
+      d.style.left=Math.random()*100+'vw';
+      const dur=1.4+Math.random()*1.6, delay=Math.random()*2;
+      d.style.animation=`fall ${dur}s ${delay}s linear forwards`;
+      d.style.width=(8+Math.random()*8)+'px'; d.style.height=(12+Math.random()*12)+'px';
+      c.appendChild(d);
+    }
+  }
+  function clearTeardrops() { document.getElementById('teardrops').innerHTML=''; }
 
   // ─── Helpers ─────────────────────────────────────────────
   function fn(name) { return name?name.split(' ')[0]:name; }
