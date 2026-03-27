@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 84" width="400" height="336" aria-label="ATP 2000">
+  <defs>
+    <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Shadow -->
+  <ellipse cx="50" cy="82" rx="32" ry="4" fill="#00000033"/>
+  <!-- Shield body -->
+  <path d="M50,3 L94,17 L94,50 Q94,75 50,83 Q6,75 6,50 L6,17 Z" fill="#0a3018"/>
+  <!-- Shield gradient overlay -->
+  <path d="M50,3 L94,17 L94,50 Q94,75 50,83 Q6,75 6,50 L6,17 Z" fill="url(#sg)"/>
+  <!-- Gold border -->
+  <path d="M50,3 L94,17 L94,50 Q94,75 50,83 Q6,75 6,50 L6,17 Z" fill="none" stroke="#d4a017" stroke-width="2.5"/>
+  <!-- Inner border -->
+  <path d="M50,9 L88,21 L88,50 Q88,71 50,78 Q12,71 12,50 L12,21 Z" fill="none" stroke="#d4a01744" stroke-width="1"/>
+  <!-- Horizontal rule -->
+  <line x1="16" y1="47" x2="84" y2="47" stroke="#d4a017" stroke-width="0.8" opacity="0.5"/>
+  <!-- Crown -->
+  <g transform="translate(50,14)">
+    <polygon points="-9,8 -12,0 -6,4 0,-3 6,4 12,0 9,8" fill="#d4a017"/>
+    <rect x="-10" y="8" width="20" height="4" rx="1" fill="#d4a017"/>
+    <circle cx="-9" cy="0" r="1.8" fill="#f0c040"/>
+    <circle cx="0" cy="-3" r="1.8" fill="#f0c040"/>
+    <circle cx="9" cy="0" r="1.8" fill="#f0c040"/>
+  </g>
+  <!-- ATP text -->
+  <text x="50" y="42" text-anchor="middle" font-size="17" fill="#f0c040" font-weight="900" font-family="Georgia,serif" letter-spacing="4">ATP</text>
+  <!-- 2000 text -->
+  <text x="50" y="55" text-anchor="middle" font-size="9.5" fill="#d4a017" font-weight="700" font-family="Georgia,serif" letter-spacing="3">2000</text>
+  <!-- Card suits -->
+  <text x="23" y="70" text-anchor="middle" font-size="10" fill="#d4a017" font-family="Arial">♠</text>
+  <text x="36" y="70" text-anchor="middle" font-size="10" fill="#c0392b" font-family="Arial">♥</text>
+  <text x="64" y="70" text-anchor="middle" font-size="10" fill="#c0392b" font-family="Arial">♦</text>
+  <text x="77" y="70" text-anchor="middle" font-size="10" fill="#d4a017" font-family="Arial">♣</text>
+</svg>
