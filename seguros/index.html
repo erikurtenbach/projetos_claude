@@ -178,6 +178,27 @@
       min-width: 120px;
     }
 
+    input[type="date"] {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 0.85rem;
+      color: #333;
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="date"]:focus { border-color: #1a237e; background: white; }
+
+    .date-range {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      color: #888;
+    }
+
     input[type="text"], select {
       border: 1px solid #ddd;
       border-radius: 8px;
@@ -384,6 +405,12 @@
         <select id="filter-usuario" onchange="applyFilters()">
           <option value="">Todos os Usuários</option>
         </select>
+        <div class="date-range">
+          <span>De</span>
+          <input type="date" id="filter-date-from" onchange="applyFilters()">
+          <span>Até</span>
+          <input type="date" id="filter-date-to" onchange="applyFilters()">
+        </div>
         <span id="count-label"></span>
       </div>
 
@@ -567,12 +594,21 @@
     const status = document.getElementById('filter-status').value;
     const tiposeg = document.getElementById('filter-tiposeg').value;
     const usuario = document.getElementById('filter-usuario').value;
+    const dateFrom = document.getElementById('filter-date-from').value;
+    const dateTo   = document.getElementById('filter-date-to').value;
 
     filtered = allData.filter(r => {
       if (tipo   && r['Tipo'] !== tipo) return false;
       if (status && r['Status'] !== status) return false;
       if (tiposeg && r['Tipo Seguro'] !== tiposeg) return false;
       if (usuario && r['Usuário'] !== usuario) return false;
+      if (dateFrom || dateTo) {
+        const d = new Date(r['Data']);
+        if (isNaN(d)) return false;
+        const ds = d.toISOString().slice(0,10);
+        if (dateFrom && ds < dateFrom) return false;
+        if (dateTo   && ds > dateTo)   return false;
+      }
       if (q) {
         const hay = (r['Cliente']||'') + ' ' + (r['Item']||'') + ' ' + (r['CPF/CNPJ']||'');
         if (!hay.toLowerCase().includes(q)) return false;
