@@ -1174,9 +1174,16 @@
 
     // Partidas reais: estatísticas de pontuação
     const realTotal=partidas.length;
-    let totalRounds=0;
-    partidas.forEach(p=>{ totalRounds+=(p.num_rodadas||0); });
-    const avgScore=totalRounds?Math.round(totalMyScore/totalRounds):0;
+    let totalRounds=0, totalMyScoreRodadas=0;
+    partidas.forEach(p=>{
+      const rds=p.num_rodadas||0;
+      if(rds>0){
+        const inD1=p.dupla1_jogador1===name||p.dupla1_jogador2===name;
+        totalMyScoreRodadas+=inD1?p.placar_final_dupla1:p.placar_final_dupla2;
+        totalRounds+=rds;
+      }
+    });
+    const avgScore=totalRounds?Math.round(totalMyScoreRodadas/totalRounds):0;
     const bestScore=scores.length?Math.max(...scores):0;
     const avgMargin=realTotal?Math.round(margins.reduce((a,b)=>a+b,0)/realTotal):0;
     const avgOppScore=Math.round(totalOppScore/(realTotal||1));
