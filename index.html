@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projetos</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0e0e0e;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: #888;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+    }
+
+    a.card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      width: 200px;
+      height: 180px;
+      background: #1a1a1a;
+      border: 1px solid #2e2e2e;
+      border-radius: 16px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, transform 0.2s, background 0.2s;
+    }
+
+    a.card:hover {
+      border-color: #666;
+      background: #222;
+      transform: translateY(-4px);
+    }
+
+    .card-icon {
+      font-size: 2.6rem;
+      line-height: 1;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    .card-desc {
+      font-size: 0.75rem;
+      color: #777;
+      text-align: center;
+      padding: 0 12px;
+    }
+
+    /* per-project accent colors on hover */
+    a.card.buraco:hover  { border-color: #7b1f35; }
+    a.card.seguros:hover { border-color: #1a6b3c; }
+  </style>
+</head>
+<body>
+
+  <h1>Meus Projetos</h1>
+
+  <div class="grid">
+
+    <a class="card buraco" href="buraco/">
+      <div class="card-icon">🃏</div>
+      <div class="card-title">ATP 2000</div>
+      <div class="card-desc">Tracker de Buraco com ranking e estatísticas</div>
+    </a>
+
+    <a class="card seguros" href="seguros/">
+      <div class="card-icon">🛡️</div>
+      <div class="card-title">Seguros</div>
+      <div class="card-desc">Dashboard de apólices e indicadores</div>
+    </a>
+
+  </div>
+
+</body>
+</html>
