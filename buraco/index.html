@@ -1110,14 +1110,20 @@
 
   // ─── Jogadores ───────────────────────────────────────────
   let allPartidasCache = null;
+  let allRodadasCache = null;
 
   async function loadJogadores() {
     const loading=document.getElementById('jogadores-loading'), content=document.getElementById('jogadores-content');
     loading.style.display='flex'; content.style.display='none';
     try {
-      const { data, error } = await db.from('partidas').select('*').not('dupla_vencedora','is',null).order('data',{ascending:false});
+      const [{ data, error }, { data: rds, error: rdsErr }] = await Promise.all([
+        db.from('partidas').select('*').not('dupla_vencedora','is',null).order('data',{ascending:false}),
+        db.from('rodadas').select('partida_id,numero_rodada,pontos_dupla1,pontos_dupla2')
+      ]);
       if (error) throw error;
+      if (rdsErr) throw rdsErr;
       allPartidasCache = data;
+      allRodadasCache = rds || [];
       loading.style.display='none'; content.style.display='block';
       const names=new Set();
       data.forEach(p=>[p.dupla1_jogador1,p.dupla1_jogador2,p.dupla2_jogador1,p.dupla2_jogador2].forEach(n=>{if(n)names.add(n);}));
@@ -1147,18 +1153,16 @@
       p.dupla2_jogador1===name||p.dupla2_jogador2===name
     );
 
-    let wins=0, totalMyScore=0, totalOppScore=0, scores=[], margins=[];
+    let wins=0;
     const partners={}, opponents={};
+    // Mapas de partida_id → inD1 para cruzar com rodadas
+    const partidaMap={};
 
     partidas.forEach(p=>{
       const inD1=p.dupla1_jogador1===name||p.dupla1_jogador2===name;
-      const myScore  = inD1?p.placar_final_dupla1:p.placar_final_dupla2;
-      const oppScore = inD1?p.placar_final_dupla2:p.placar_final_dupla1;
       const won=(inD1&&p.dupla_vencedora===1)||(!inD1&&p.dupla_vencedora===2);
       if(won) wins++;
-      totalMyScore+=myScore; totalOppScore+=oppScore;
-      scores.push(myScore);
-      margins.push(myScore-oppScore);
+      partidaMap[p.id]=inD1;
 
       const partner=inD1?(p.dupla1_jogador1===name?p.dupla1_jogador2:p.dupla1_jogador1):(p.dupla2_jogador1===name?p.dupla2_jogador2:p.dupla2_jogador1);
       if(!partners[partner])partners[partner]={games:0,wins:0};
@@ -1172,21 +1176,19 @@
       });
     });
 
-    // Partidas reais: estatísticas de pontuação
+    // Estatísticas por rodada (fonte: tabela rodadas)
     const realTotal=partidas.length;
-    let totalRounds=0, totalMyScoreRodadas=0;
-    partidas.forEach(p=>{
-      const rds=p.num_rodadas||0;
-      if(rds>0){
-        const inD1=p.dupla1_jogador1===name||p.dupla1_jogador2===name;
-        totalMyScoreRodadas+=inD1?p.placar_final_dupla1:p.placar_final_dupla2;
-        totalRounds+=rds;
-      }
+    const myRounds=[], oppRounds=[];
+    (allRodadasCache||[]).forEach(r=>{
+      if(!(r.partida_id in partidaMap)) return;
+      const inD1=partidaMap[r.partida_id];
+      myRounds.push(inD1?r.pontos_dupla1:r.pontos_dupla2);
+      oppRounds.push(inD1?r.pontos_dupla2:r.pontos_dupla1);
     });
-    const avgScore=totalRounds?Math.round(totalMyScoreRodadas/totalRounds):0;
-    const bestScore=scores.length?Math.max(...scores):0;
-    const avgMargin=realTotal?Math.round(margins.reduce((a,b)=>a+b,0)/realTotal):0;
-    const avgOppScore=Math.round(totalOppScore/(realTotal||1));
+    const totalRounds=myRounds.length;
+    const avgScore=totalRounds?Math.round(myRounds.reduce((a,b)=>a+b,0)/totalRounds):0;
+    const bestScore=totalRounds?Math.max(...myRounds):0;
+    const avgOppScore=totalRounds?Math.round(oppRounds.reduce((a,b)=>a+b,0)/totalRounds):0;
 
     // Inclui legado para vitórias e contagem de partidas
     const leg=getLegacySummary(name);
@@ -1205,11 +1207,10 @@
       <div class="stat-card"><div class="stat-val">${totalGames}</div><div class="stat-lbl">Partidas</div></div>
       <div class="stat-card"><div class="stat-val">${totalWins}</div><div class="stat-lbl">Vitórias</div></div>
       <div class="stat-card"><div class="stat-val">${winPct}%</div><div class="stat-lbl">Win Rate</div></div>
-      <div class="stat-card"><div class="stat-val">${avgScore||'–'}</div><div class="stat-lbl">Média/Rodada${realTotal?'':' *'}</div></div>
-      <div class="stat-card"><div class="stat-val">${bestScore||'–'}</div><div class="stat-lbl">Maior Placar</div></div>
+      <div class="stat-card"><div class="stat-val">${totalRounds?avgScore:'–'}</div><div class="stat-lbl">Média/Rodada</div></div>
+      <div class="stat-card"><div class="stat-val">${totalRounds?bestScore:'–'}</div><div class="stat-lbl">Maior Rodada</div></div>
       <div class="stat-card"><div class="stat-val">${totalLosses}</div><div class="stat-lbl">Derrotas</div></div>
-      <div class="stat-card"><div class="stat-val">${realTotal?`${avgMargin>0?'+':''}${avgMargin}`:'–'}</div><div class="stat-lbl">Saldo Médio</div></div>
-      <div class="stat-card"><div class="stat-val">${realTotal?avgOppScore:'–'}</div><div class="stat-lbl">Média Adv.</div></div>
+      <div class="stat-card"><div class="stat-val">${totalRounds?avgOppScore:'–'}</div><div class="stat-lbl">Média Adv./Rodada</div></div>
       <div class="stat-card"><div class="stat-val" style="color:#9090cc">${surrenders}</div><div class="stat-lbl">Surrenders</div></div>
     `;
     if (leg.games>0) document.getElementById('ps-cards').innerHTML +=
