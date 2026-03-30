@@ -898,7 +898,7 @@
     });
     rows.push(`<tr><td>Total</td><td>${acc1}</td><td>${acc2}</td></tr>`);
     return `
-      <button class="hc-rounds-toggle" id="rounds-btn-${pid}" onclick="toggleRounds(${pid})">▼ Ver rodadas (${rounds.length})</button>
+      <button class="hc-rounds-toggle" id="rounds-btn-${pid}" onclick="toggleRounds('${pid}')">▼ Ver rodadas (${rounds.length})</button>
       <div class="hc-rounds" id="rounds-${pid}">
         <table>
           <thead><tr><th></th><th>Dupla 1</th><th>Dupla 2</th></tr></thead>
