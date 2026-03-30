@@ -136,12 +136,9 @@
     .hc-team.winner .hc-name { color: var(--text); }
     .hc-team:last-child { text-align: right; }
     .hc-vs { color: var(--text-muted); font-weight: 700; text-align: center; font-size: 0.9rem; }
-    .hc-rounds-toggle { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; cursor: pointer; margin-top: 10px; width: 100%; transition: all 0.15s; }
-    .hc-rounds-toggle:hover { border-color: var(--wine-light); color: var(--wine-light); }
-    .hc-rounds { display: none; margin-top: 10px; overflow: hidden; }
-    .hc-rounds.open { display: block; }
+    .hc-rounds { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
     .hc-rounds table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-    .hc-rounds th { color: var(--text-muted); font-weight: 600; padding: 4px 8px; border-bottom: 1px solid var(--border); text-align: center; }
+    .hc-rounds th { color: var(--text-muted); font-weight: 600; padding: 4px 8px; border-bottom: 1px solid var(--border); text-align: center; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
     .hc-rounds th:first-child { text-align: left; }
     .hc-rounds td { padding: 5px 8px; text-align: center; border-bottom: 1px solid rgba(90,37,53,0.2); }
     .hc-rounds td:first-child { text-align: left; color: var(--text-muted); font-size: 0.72rem; }
@@ -875,15 +872,7 @@
   function closeWinner() { document.getElementById('winner-overlay').classList.remove('show'); }
 
   // ─── History ─────────────────────────────────────────────
-  function toggleRounds(id) {
-    const el = document.getElementById('rounds-'+id);
-    const btn = document.getElementById('rounds-btn-'+id);
-    if (!el) return;
-    const open = el.classList.toggle('open');
-    btn.textContent = open ? '▲ Ocultar rodadas' : '▼ Ver rodadas';
-  }
-
-  function buildRoundsHTML(rounds, pid) {
+  function buildRoundsHTML(rounds, d1name, d2name) {
     if (!rounds || !rounds.length) return '';
     let acc1=0, acc2=0;
     const rows = rounds.map(r => {
@@ -897,14 +886,12 @@
       </tr>`;
     });
     rows.push(`<tr><td>Total</td><td>${acc1}</td><td>${acc2}</td></tr>`);
-    return `
-      <button class="hc-rounds-toggle" id="rounds-btn-${pid}" onclick="toggleRounds('${pid}')">▼ Ver rodadas (${rounds.length})</button>
-      <div class="hc-rounds" id="rounds-${pid}">
-        <table>
-          <thead><tr><th></th><th>Dupla 1</th><th>Dupla 2</th></tr></thead>
-          <tbody>${rows.join('')}</tbody>
-        </table>
-      </div>`;
+    return `<div class="hc-rounds">
+      <table>
+        <thead><tr><th></th><th>${esc(d1name)}</th><th>${esc(d2name)}</th></tr></thead>
+        <tbody>${rows.join('')}</tbody>
+      </table>
+    </div>`;
   }
 
   async function loadHistory() {
@@ -948,7 +935,7 @@
             <div class="hc-vs">×</div>
             <div class="hc-team" style="text-align:right"><div class="hc-name">${esc(p.dupla2_jogador1)}<br>${esc(p.dupla2_jogador2)}</div><div class="hc-score" style="color:var(--wine-light)">${p.placar_final_dupla2||0}</div></div>
           </div>
-          ${buildRoundsHTML(rounds, p.id)}
+          ${buildRoundsHTML(rounds, p.dupla1_jogador1+'/'+p.dupla1_jogador2, p.dupla2_jogador1+'/'+p.dupla2_jogador2)}
         </div>`;
         }
 
@@ -970,7 +957,7 @@
           <div class="hc-vs">×</div>
           <div class="hc-team ${w===2?'winner':''}"><div class="hc-name">${esc(p.dupla2_jogador1)}<br>${esc(p.dupla2_jogador2)}</div><div class="hc-score">${p.placar_final_dupla2}</div></div>
         </div>
-        ${buildRoundsHTML(rounds, p.id)}
+        ${buildRoundsHTML(rounds, p.dupla1_jogador1+'/'+p.dupla1_jogador2, p.dupla2_jogador1+'/'+p.dupla2_jogador2)}
       </div>`;
       }).join('');
     } catch(e) { loading.style.display='none'; toast('Erro: '+e.message,true); }
