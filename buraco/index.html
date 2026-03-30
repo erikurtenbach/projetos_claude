@@ -411,7 +411,7 @@
   <div id="game-active" style="display:none">
     <div class="score-cards">
       <div class="score-card" id="sc-t1">
-        <div class="team-label">🔵 Dupla 1</div>
+        <div class="team-label" id="sc-t1-label">🔵 Dupla 1</div>
         <div class="sc-players" id="sc-t1-players"></div>
         <div class="score-num" id="sc-t1-score">0</div>
         <div class="sc-prog-wrap">
@@ -421,7 +421,7 @@
         <div class="score-status" id="sc-t1-status">faltam 2000 pts</div>
       </div>
       <div class="score-card" id="sc-t2">
-        <div class="team-label">🟥 Dupla 2</div>
+        <div class="team-label" id="sc-t2-label">🟥 Dupla 2</div>
         <div class="sc-players" id="sc-t2-players"></div>
         <div class="score-num" id="sc-t2-score">0</div>
         <div class="sc-prog-wrap">
@@ -780,8 +780,10 @@
   function renderGame() {
     if (!game) { document.getElementById('no-game').style.display='block'; document.getElementById('game-active').style.display='none'; document.getElementById('dot-jogo').style.display='none'; return; }
     document.getElementById('no-game').style.display='none'; document.getElementById('game-active').style.display='block'; document.getElementById('dot-jogo').style.display='inline-block';
-    document.getElementById('sc-t1-players').innerHTML=esc(game.p1)+'<br>'+esc(game.p2);
-    document.getElementById('sc-t2-players').innerHTML=esc(game.p3)+'<br>'+esc(game.p4);
+    document.getElementById('sc-t1-label').textContent='🔵 '+fn(game.p1)+' & '+fn(game.p2);
+    document.getElementById('sc-t2-label').textContent='🟥 '+fn(game.p3)+' & '+fn(game.p4);
+    document.getElementById('sc-t1-players').innerHTML='';
+    document.getElementById('sc-t2-players').innerHTML='';
     document.getElementById('ri-t1-label').textContent=fn(game.p1)+' & '+fn(game.p2);
     document.getElementById('ri-t2-label').textContent=fn(game.p3)+' & '+fn(game.p4);
     document.getElementById('pv-t1-name').textContent=fn(game.p1);
@@ -892,8 +894,8 @@
       const d2win = r.pontos_dupla2 > r.pontos_dupla1;
       return `<tr>
         <td>Rodada ${r.numero_rodada}</td>
-        <td class="${d1win?'rd-win':''}">${r.pontos_dupla1}<span class="rd-acc">${acc1}</span></td>
-        <td class="${d2win?'rd-win':''}">${r.pontos_dupla2}<span class="rd-acc">${acc2}</span></td>
+        <td class="${d1win?'rd-win':''}">${r.pontos_dupla1}</td>
+        <td class="${d2win?'rd-win':''}">${r.pontos_dupla2}</td>
       </tr>`;
     });
     rows.push(`<tr><td>Total</td><td>${acc1}</td><td>${acc2}</td></tr>`);
