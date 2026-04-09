@@ -939,12 +939,14 @@
         const rounds = rdsMap[p.id] || [];
 
         if (p.status === 'em_andamento') {
+          const pd2 = encodeURIComponent(JSON.stringify(p));
           return `<div class="history-card" style="border-color:#5a4080">
           <div class="hc-header">
             <span class="hc-date">📅 ${date}</span>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
               <span class="winner-badge" style="background:#5a4080;color:#e0d0ff">⏳ Em andamento</span>
-              <button class="edit-btn" style="border-color:#9090c0;color:#b0b0e0" onclick="resumeGame(${p.id})">▶ Retomar</button>
+              <button class="edit-btn" style="border-color:#9090c0;color:#b0b0e0" data-resume-id="${p.id}">▶ Retomar</button>
+              <button class="edit-btn" onclick="openEdit(decodeURIComponent('${pd2}'))">✏️ Editar</button>
             </div>
           </div>
           <div class="hc-teams">
@@ -982,8 +984,10 @@
 
   async function resumeGame(pid) {
     try {
-      const { data: p } = await db.from('partidas').select('*').eq('id', pid).single();
-      const { data: rds } = await db.from('rodadas').select('*').eq('partida_id', pid).order('numero_rodada');
+      const { data: p, error: e1 } = await db.from('partidas').select('*').eq('id', pid).single();
+      if (e1) throw e1;
+      const { data: rds, error: e2 } = await db.from('rodadas').select('*').eq('partida_id', pid).order('numero_rodada');
+      if (e2) throw e2;
       let acc1=0, acc2=0;
       const rounds = (rds||[]).map(r => {
         acc1+=r.pontos_dupla1; acc2+=r.pontos_dupla2;
@@ -1448,6 +1452,12 @@
     el.className='show'+(isError?' error':'');
     clearTimeout(toastTimer); toastTimer=setTimeout(()=>{el.className='';},3500);
   }
+
+  // ─── Event delegation for history buttons ─────────────────
+  document.getElementById('hist-list').addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-resume-id]');
+    if (btn) resumeGame(btn.dataset.resumeId);
+  });
 
   // ─── Init ─────────────────────────────────────────────────
   loadGame();
