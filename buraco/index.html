@@ -48,6 +48,7 @@
     /* ── Panel ── */
     .panel { background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border); padding: 20px 18px; margin-bottom: 18px; box-shadow: 0 2px 12px #00000044; }
     .panel-title { color: var(--gold-light); font-size: 0.95rem; font-weight: 700; margin-bottom: 16px; letter-spacing: 0.5px; }
+    .panel-subtitle { color: var(--text-muted); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
 
     /* ── Inputs ── */
     .input-group { margin-bottom: 12px; }
@@ -501,7 +502,12 @@
     <div id="player-stats-wrap" style="display:none">
       <div class="panel">
         <div class="panel-title" id="ps-name"></div>
-        <div class="stat-grid" id="ps-cards"></div>
+        <div class="panel-subtitle">&#127942; Partidas</div>
+        <div class="stat-grid" id="ps-cards-partidas"></div>
+        <div id="ps-legacy-note"></div>
+        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0" />
+        <div class="panel-subtitle">&#127922; Rodadas</div>
+        <div class="stat-grid" id="ps-cards-rodadas"></div>
       </div>
       <div class="stat-grid-2">
         <div class="panel">
@@ -1298,19 +1304,46 @@
       return (inD1&&p.surrender_dupla===1)||(!inD1&&p.surrender_dupla===2);
     }).length;
 
+    // Round wins/losses (rounds where player's team scored more)
+    let roundWins=0, roundLosses=0, roundDraws=0;
+    const totalPts=myRounds.reduce((a,b)=>a+b,0);
+    const totalOppPts=oppRounds.reduce((a,b)=>a+b,0);
+    const worstScore=totalRounds?Math.min(...myRounds):'–';
+    myRounds.forEach((s,i)=>{
+      if(s>oppRounds[i]) roundWins++;
+      else if(s<oppRounds[i]) roundLosses++;
+      else roundDraws++;
+    });
+    const roundWinPct=totalRounds?Math.round(roundWins/totalRounds*100):0;
+
     document.getElementById('ps-name').textContent='👤 '+name;
-    document.getElementById('ps-cards').innerHTML=`
+
+    // ── Partidas section ──
+    document.getElementById('ps-cards-partidas').innerHTML=`
       <div class="stat-card"><div class="stat-val">${totalGames}</div><div class="stat-lbl">Partidas</div></div>
       <div class="stat-card"><div class="stat-val">${totalWins}</div><div class="stat-lbl">Vitórias</div></div>
-      <div class="stat-card"><div class="stat-val">${winPct}%</div><div class="stat-lbl">Win Rate</div></div>
-      <div class="stat-card"><div class="stat-val">${totalRounds?avgScore:'–'}</div><div class="stat-lbl">Média/Rodada</div></div>
-      <div class="stat-card"><div class="stat-val">${totalRounds?bestScore:'–'}</div><div class="stat-lbl">Maior Rodada</div></div>
       <div class="stat-card"><div class="stat-val">${totalLosses}</div><div class="stat-lbl">Derrotas</div></div>
-      <div class="stat-card"><div class="stat-val">${totalRounds?avgOppScore:'–'}</div><div class="stat-lbl">Média Adv./Rodada</div></div>
+      <div class="stat-card"><div class="stat-val">${winPct}%</div><div class="stat-lbl">Win Rate</div></div>
       <div class="stat-card"><div class="stat-val" style="color:#9090cc">${surrenders}</div><div class="stat-lbl">Surrenders</div></div>
     `;
-    if (leg.games>0) document.getElementById('ps-cards').innerHTML +=
-      `<p style="grid-column:1/-1;font-size:0.72rem;color:var(--text-muted);margin-top:4px;text-align:center">★ Inclui ${leg.games} partidas e ${leg.wins} vitórias do histórico legado. Estatísticas de pontuação baseadas em ${realTotal} partida${realTotal!==1?'s':''} com placar registrado.</p>`;
+    const legNote=document.getElementById('ps-legacy-note');
+    if (leg.games>0) legNote.innerHTML=`<p style="font-size:0.72rem;color:var(--text-muted);margin-top:6px;text-align:center">★ Inclui ${leg.games} partidas e ${leg.wins} vitórias do histórico legado.</p>`;
+    else legNote.innerHTML='';
+
+    // ── Rodadas section ──
+    document.getElementById('ps-cards-rodadas').innerHTML=`
+      <div class="stat-card"><div class="stat-val">${totalRounds}</div><div class="stat-lbl">Rodadas Jogadas</div></div>
+      <div class="stat-card"><div class="stat-val">${roundWins}</div><div class="stat-lbl">Rodadas Vencidas</div></div>
+      <div class="stat-card"><div class="stat-val">${roundLosses}</div><div class="stat-lbl">Rodadas Perdidas</div></div>
+      <div class="stat-card"><div class="stat-val">${totalRounds?roundWinPct+'%':'–'}</div><div class="stat-lbl">Win% Rodadas</div></div>
+      <div class="stat-card"><div class="stat-val">${totalRounds?totalPts:'–'}</div><div class="stat-lbl">Total Pontos</div></div>
+      <div class="stat-card"><div class="stat-val">${totalRounds?avgScore:'–'}</div><div class="stat-lbl">Média/Rodada</div></div>
+      <div class="stat-card"><div class="stat-val">${totalRounds?bestScore:'–'}</div><div class="stat-lbl">Maior Rodada</div></div>
+      <div class="stat-card"><div class="stat-val">${totalRounds?worstScore:'–'}</div><div class="stat-lbl">Pior Rodada</div></div>
+      <div class="stat-card"><div class="stat-val">${totalRounds?avgOppScore:'–'}</div><div class="stat-lbl">Média Adversário</div></div>
+      <div class="stat-card"><div class="stat-val">${totalRounds?totalOppPts:'–'}</div><div class="stat-lbl">Total Pts Adversário</div></div>
+      ${roundDraws?`<div class="stat-card"><div class="stat-val">${roundDraws}</div><div class="stat-lbl">Empates</div></div>`:''}
+    `;
 
     // Partners
     const partnersSorted=Object.entries(partners).sort((a,b)=>b[1].games-a[1].games);
