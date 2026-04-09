@@ -78,11 +78,12 @@
     .known-sidebar h3 { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
     .known-sidebar .hint { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4; opacity: 0.8; }
     .chips-list { display: flex; flex-direction: column; gap: 6px; }
-    .player-chip { background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 8px; font-size: 0.83rem; cursor: grab; user-select: none; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
-    .player-chip::before { content: '⠿'; color: var(--text-muted); font-size: 0.75rem; flex-shrink: 0; }
+    .player-chip { background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; border-radius: 8px; font-size: 0.88rem; cursor: pointer; user-select: none; transition: all 0.15s; display: flex; align-items: center; gap: 6px; min-height: 44px; }
+    .player-chip::before { content: '+'; color: var(--text-muted); font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
     .player-chip:hover { border-color: var(--gold); background: #1a4e2e; }
     .player-chip.selected { border-color: var(--gold); background: #2a5c1a; box-shadow: 0 0 0 2px #f0c04044; color: var(--gold-light); }
-    .player-chip:active { cursor: grabbing; }
+    .player-chip.used { opacity: 0.4; pointer-events: none; }
+    .player-chip:active { transform: scale(0.97); }
     .known-sidebar .no-history { font-size: 0.78rem; color: var(--text-muted); font-style: italic; text-align: center; padding: 10px 0; }
     .active-game-warning { background: #2d3a1a; border: 1px solid #6a8a2a; border-radius: 8px; padding: 10px 14px; font-size: 0.82rem; color: #c8e060; margin-bottom: 14px; display: none; }
     .players-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
@@ -292,10 +293,10 @@
     .surrender-box h3 { color:#c0b0e8; font-size:1.1rem; margin-bottom:0; }
     .surrender-team-btn { flex:1; background:var(--input-bg); border:2px solid var(--border); color:var(--text); padding:14px 10px; border-radius:10px; cursor:pointer; font-size:0.9rem; font-weight:700; transition:all 0.15s; line-height:1.5; }
     .surrender-team-btn:hover { border-color:#9090c0; background:#2a2040; }
-    /* ── Teardrops ── */
+    /* ── Teardrops (crying emojis) ── */
     #teardrops { position:fixed; inset:0; pointer-events:none; z-index:250; overflow:hidden; }
-    .teardrop { position:absolute; top:-40px; background:radial-gradient(ellipse at 50% 30%,#88aaff,#3366dd); border-radius:50% 50% 60% 60%; opacity:0.85; animation:fall linear forwards; }
-    @keyframes fall { 0%{transform:translateY(0) rotate(-5deg);opacity:0.9} 80%{opacity:0.7} 100%{transform:translateY(110vh) rotate(5deg);opacity:0} }
+    .teardrop { position:absolute; top:-40px; font-size:1.6rem; line-height:1; animation:fall linear forwards; }
+    @keyframes fall { 0%{transform:translateY(0) rotate(-10deg);opacity:1} 80%{opacity:0.8} 100%{transform:translateY(110vh) rotate(10deg);opacity:0} }
 
     @media (max-width: 600px) {
       .setup-layout { grid-template-columns: 1fr; }
@@ -373,7 +374,7 @@
   <div class="setup-layout">
     <div class="known-sidebar">
       <h3>&#128101; Jogadores</h3>
-      <p class="hint">Arraste ou toque para preencher</p>
+      <p class="hint">Toque no nome para preencher o próximo campo</p>
       <div id="chips-loading" style="font-size:0.76rem;color:var(--text-muted)">Carregando…</div>
       <div class="chips-list" id="chips-list"></div>
     </div>
@@ -383,13 +384,13 @@
         <div class="players-grid">
           <div class="team-section">
             <h4>&#128309; Dupla 1</h4>
-            <div class="input-group"><label>Jogador 1</label><input id="p1" type="text" placeholder="Nome ou arraste..." maxlength="20" ondragover="dragOver(event)" ondrop="dropOnInput(event,'p1')" ondragleave="dragLeave(event)" onclick="tapFill('p1')" /></div>
-            <div class="input-group"><label>Jogador 2</label><input id="p2" type="text" placeholder="Nome ou arraste..." maxlength="20" ondragover="dragOver(event)" ondrop="dropOnInput(event,'p2')" ondragleave="dragLeave(event)" onclick="tapFill('p2')" /></div>
+            <div class="input-group"><label>Jogador 1</label><input id="p1" type="text" placeholder="Nome..." maxlength="20" oninput="updateChipsUsed()" /></div>
+            <div class="input-group"><label>Jogador 2</label><input id="p2" type="text" placeholder="Nome..." maxlength="20" oninput="updateChipsUsed()" /></div>
           </div>
           <div class="team-section">
             <h4>&#128992; Dupla 2</h4>
-            <div class="input-group"><label>Jogador 3</label><input id="p3" type="text" placeholder="Nome ou arraste..." maxlength="20" ondragover="dragOver(event)" ondrop="dropOnInput(event,'p3')" ondragleave="dragLeave(event)" onclick="tapFill('p3')" /></div>
-            <div class="input-group"><label>Jogador 4</label><input id="p4" type="text" placeholder="Nome ou arraste..." maxlength="20" ondragover="dragOver(event)" ondrop="dropOnInput(event,'p4')" ondragleave="dragLeave(event)" onclick="tapFill('p4')" /></div>
+            <div class="input-group"><label>Jogador 3</label><input id="p3" type="text" placeholder="Nome..." maxlength="20" oninput="updateChipsUsed()" /></div>
+            <div class="input-group"><label>Jogador 4</label><input id="p4" type="text" placeholder="Nome..." maxlength="20" oninput="updateChipsUsed()" /></div>
           </div>
         </div>
         <button class="btn-primary" id="btn-start" onclick="startGame()">&#9889; Iniciar Partida</button>
@@ -449,7 +450,7 @@
     <div class="panel">
       <div class="panel-title">&#128203; Rodadas desta Partida</div>
       <div class="rounds-scroll">
-        <table><thead><tr><th>#</th><th id="rh-t1">D1</th><th id="rh-t2">D2</th><th>Acum. D1</th><th>Acum. D2</th></tr></thead><tbody id="rounds-body"></tbody></table>
+        <table><thead><tr><th>#</th><th id="rh-t1">D1</th><th id="rh-t2">D2</th><th id="rh-acc1">Acum. D1</th><th id="rh-acc2">Acum. D2</th></tr></thead><tbody id="rounds-body"></tbody></table>
         <div id="rounds-empty" class="empty-state">Nenhuma rodada registrada ainda.</div>
       </div>
     </div>
@@ -616,25 +617,25 @@
     <h3>&#9998; Editar Partida</h3>
     <div class="edit-teams">
       <div class="edit-team-col">
-        <h4>&#128309; Dupla 1</h4>
+        <h4 id="ed-t1-label">&#128309; Dupla 1</h4>
         <input id="ed-p1" type="text" placeholder="Jogador 1" maxlength="20" />
         <input id="ed-p2" type="text" placeholder="Jogador 2" maxlength="20" />
       </div>
       <div class="edit-team-col">
-        <h4>&#128992; Dupla 2</h4>
+        <h4 id="ed-t2-label">&#128992; Dupla 2</h4>
         <input id="ed-p3" type="text" placeholder="Jogador 3" maxlength="20" />
         <input id="ed-p4" type="text" placeholder="Jogador 4" maxlength="20" />
       </div>
     </div>
     <div class="edit-scores">
-      <div class="edit-score-col"><label>Placar final — Dupla 1</label><input id="ed-s1" type="number" min="0" /></div>
-      <div class="edit-score-col"><label>Placar final — Dupla 2</label><input id="ed-s2" type="number" min="0" /></div>
+      <div class="edit-score-col"><label id="ed-s1-label">Placar final — Dupla 1</label><input id="ed-s1" type="number" min="0" /></div>
+      <div class="edit-score-col"><label id="ed-s2-label">Placar final — Dupla 2</label><input id="ed-s2" type="number" min="0" /></div>
     </div>
     <div class="winner-select">
       <label>Dupla vencedora</label>
       <div class="winner-radios">
-        <label class="winner-radio"><input type="radio" name="ed-winner" value="1" /> &#127942; Dupla 1</label>
-        <label class="winner-radio"><input type="radio" name="ed-winner" value="2" /> &#127942; Dupla 2</label>
+        <label class="winner-radio"><input type="radio" name="ed-winner" value="1" /> <span id="ed-w1-label">&#127942; Dupla 1</span></label>
+        <label class="winner-radio"><input type="radio" name="ed-winner" value="2" /> <span id="ed-w2-label">&#127942; Dupla 2</span></label>
       </div>
     </div>
     <div class="edit-actions">
@@ -748,21 +749,28 @@
       if (!names.size) { listEl.innerHTML = '<div class="no-history">Nenhum histórico ainda</div>'; return; }
       [...names].sort().forEach(name => {
         const chip = document.createElement('div');
-        chip.className = 'player-chip'; chip.textContent = name; chip.draggable = true; chip.dataset.name = name;
-        chip.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', name); e.dataTransfer.effectAllowed = 'copy'; selectedChip = null; clearChipSelection(); });
-        chip.addEventListener('click', e => { e.stopPropagation(); if (selectedChip === name) { selectedChip = null; clearChipSelection(); } else { selectedChip = name; clearChipSelection(); chip.classList.add('selected'); } });
+        chip.className = 'player-chip'; chip.textContent = name; chip.dataset.name = name;
+        chip.addEventListener('click', e => { e.stopPropagation(); chipTapFill(name); });
         listEl.appendChild(chip);
       });
+      updateChipsUsed();
     } catch(e) { loadingEl.textContent = 'Erro.'; }
   }
 
-  let selectedChip = null;
-  function clearChipSelection() { document.querySelectorAll('.player-chip').forEach(c => c.classList.remove('selected')); }
-  document.addEventListener('click', () => { selectedChip = null; clearChipSelection(); });
-  function tapFill(inputId) { if (!selectedChip) return; document.getElementById(inputId).value = selectedChip; selectedChip = null; clearChipSelection(); }
-  function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; e.target.classList.add('drop-hover'); }
-  function dragLeave(e) { e.target.classList.remove('drop-hover'); }
-  function dropOnInput(e, inputId) { e.preventDefault(); e.target.classList.remove('drop-hover'); const n = e.dataTransfer.getData('text/plain'); if (n) document.getElementById(inputId).value = n; }
+  const playerInputs = ['p1','p2','p3','p4'];
+  function getNextEmptyInput() { return playerInputs.find(id => !document.getElementById(id).value.trim()); }
+  function chipTapFill(name) {
+    const targetId = getNextEmptyInput();
+    if (!targetId) { toast('Todos os campos já estão preenchidos.',true); return; }
+    document.getElementById(targetId).value = name;
+    updateChipsUsed();
+  }
+  function updateChipsUsed() {
+    const filled = playerInputs.map(id => document.getElementById(id).value.trim().toLowerCase());
+    document.querySelectorAll('.player-chip').forEach(c => {
+      c.classList.toggle('used', filled.includes(c.dataset.name.toLowerCase()));
+    });
+  }
 
   async function startGame() {
     const p1=document.getElementById('p1').value.trim(), p2=document.getElementById('p2').value.trim();
@@ -788,8 +796,12 @@
     document.getElementById('sc-t2-players').innerHTML='';
     document.getElementById('ri-t1-label').textContent=fn(game.p1)+' & '+fn(game.p2);
     document.getElementById('ri-t2-label').textContent=fn(game.p3)+' & '+fn(game.p4);
-    document.getElementById('pv-t1-name').textContent=fn(game.p1);
-    document.getElementById('pv-t2-name').textContent=fn(game.p3);
+    document.getElementById('pv-t1-name').textContent=fn(game.p1)+' & '+fn(game.p2);
+    document.getElementById('pv-t2-name').textContent=fn(game.p3)+' & '+fn(game.p4);
+    document.getElementById('rh-t1').textContent=fn(game.p1)+' & '+fn(game.p2);
+    document.getElementById('rh-t2').textContent=fn(game.p3)+' & '+fn(game.p4);
+    document.getElementById('rh-acc1').textContent='Acum. '+fn(game.p1);
+    document.getElementById('rh-acc2').textContent='Acum. '+fn(game.p3);
     document.getElementById('round-title').textContent='Rodada '+game.roundNum;
     updateScoreDisplay(); renderRoundsTable(); updatePreview();
   }
@@ -865,9 +877,10 @@
       }).eq('id', game.partida_id);
     } catch(e) { console.error(e); }
     const winPlayers = winner===1 ? `${game.p1} & ${game.p2}` : `${game.p3} & ${game.p4}`;
+    const winLabel = winner===1 ? fn(game.p1)+' & '+fn(game.p2) : fn(game.p3)+' & '+fn(game.p4);
     document.getElementById('win-title').textContent = isSurrender
-      ? (winner===1?'🔵 Dupla 1 Venceu!':'🟥 Dupla 2 Venceu!')
-      : (winner===1?'Dupla 1':'Dupla 2')+' Venceu! 🎉';
+      ? (winner===1?'🔵 ':'🟥 ')+winLabel+' Venceu!'
+      : winLabel+' Venceu! 🎉';
     document.getElementById('win-players').textContent = winPlayers;
     document.getElementById('win-score').textContent = isSurrender
       ? `Surrender — ${game.acc1} × ${game.acc2} pts`
@@ -887,8 +900,10 @@
     btn.textContent = open ? '▲ Ocultar rodadas' : '▼ Ver rodadas';
   }
 
-  function buildRoundsHTML(rounds, pid) {
+  function buildRoundsHTML(rounds, pid, p) {
     if (!rounds || !rounds.length) return '';
+    const t1Label = p ? esc(p.dupla1_jogador1)+' & '+esc(p.dupla1_jogador2) : 'Dupla 1';
+    const t2Label = p ? esc(p.dupla2_jogador1)+' & '+esc(p.dupla2_jogador2) : 'Dupla 2';
     let acc1=0, acc2=0;
     const rows = rounds.map(r => {
       acc1 += r.pontos_dupla1; acc2 += r.pontos_dupla2;
@@ -905,7 +920,7 @@
       <button class="hc-rounds-toggle" id="rounds-btn-${pid}" onclick="toggleRounds('${pid}')">▼ Ver rodadas (${rounds.length})</button>
       <div class="hc-rounds" id="rounds-${pid}">
         <table>
-          <thead><tr><th></th><th>Dupla 1</th><th>Dupla 2</th></tr></thead>
+          <thead><tr><th></th><th>${t1Label}</th><th>${t2Label}</th></tr></thead>
           <tbody>${rows.join('')}</tbody>
         </table>
       </div>`;
@@ -954,15 +969,17 @@
             <div class="hc-vs">×</div>
             <div class="hc-team" style="text-align:right"><div class="hc-name">${esc(p.dupla2_jogador1)}<br>${esc(p.dupla2_jogador2)}</div><div class="hc-score" style="color:var(--wine-light)">${p.placar_final_dupla2||0}</div></div>
           </div>
-          ${buildRoundsHTML(rounds, p.id)}
+          ${buildRoundsHTML(rounds, p.id, p)}
         </div>`;
         }
 
         const w = p.dupla_vencedora;
         const pd = encodeURIComponent(JSON.stringify(p));
+        const surrenderNames = p.surrender_dupla===1 ? esc(p.dupla1_jogador1)+' & '+esc(p.dupla1_jogador2) : esc(p.dupla2_jogador1)+' & '+esc(p.dupla2_jogador2);
+        const winnerNames = w===1 ? esc(p.dupla1_jogador1)+' & '+esc(p.dupla1_jogador2) : esc(p.dupla2_jogador1)+' & '+esc(p.dupla2_jogador2);
         const badge = p.surrender
-          ? `<span class="winner-badge" style="background:#4a3060;color:#d0c0ff">🏳️ Surrender — Dupla ${p.surrender_dupla} desistiu</span>`
-          : `<span class="winner-badge">🏆 Dupla ${w} venceu</span>`;
+          ? `<span class="winner-badge" style="background:#4a3060;color:#d0c0ff">🏳️ Surrender — ${surrenderNames} desistiu</span>`
+          : `<span class="winner-badge">🏆 ${winnerNames} venceu</span>`;
         return `<div class="history-card">
         <div class="hc-header">
           <span class="hc-date">📅 ${date}</span>
@@ -976,7 +993,7 @@
           <div class="hc-vs">×</div>
           <div class="hc-team ${w===2?'winner':''}"><div class="hc-name">${esc(p.dupla2_jogador1)}<br>${esc(p.dupla2_jogador2)}</div><div class="hc-score">${p.placar_final_dupla2}</div></div>
         </div>
-        ${buildRoundsHTML(rounds, p.id)}
+        ${buildRoundsHTML(rounds, p.id, p)}
       </div>`;
       }).join('');
     } catch(e) { loading.style.display='none'; toast('Erro: '+e.message,true); }
@@ -1010,6 +1027,14 @@
     document.getElementById('ed-p4').value=p.dupla2_jogador2||'';
     document.getElementById('ed-s1').value=p.placar_final_dupla1??0;
     document.getElementById('ed-s2').value=p.placar_final_dupla2??0;
+    const n1 = p.dupla1_jogador1 && p.dupla1_jogador2 ? p.dupla1_jogador1+' & '+p.dupla1_jogador2 : 'Dupla 1';
+    const n2 = p.dupla2_jogador1 && p.dupla2_jogador2 ? p.dupla2_jogador1+' & '+p.dupla2_jogador2 : 'Dupla 2';
+    document.getElementById('ed-t1-label').textContent='🔵 '+n1;
+    document.getElementById('ed-t2-label').textContent='🟥 '+n2;
+    document.getElementById('ed-s1-label').textContent='Placar final — '+n1;
+    document.getElementById('ed-s2-label').textContent='Placar final — '+n2;
+    document.getElementById('ed-w1-label').textContent='🏆 '+n1;
+    document.getElementById('ed-w2-label').textContent='🏆 '+n2;
     document.querySelectorAll('input[name="ed-winner"]').forEach(r => { r.checked=parseInt(r.value)===p.dupla_vencedora; });
     hideDeleteConfirm();
     document.getElementById('edit-overlay').classList.add('show');
@@ -1418,8 +1443,8 @@
   // ─── Surrender ────────────────────────────────────────────
   function openSurrender() {
     if (!game) return;
-    document.getElementById('surr-btn-1').innerHTML = '🔵 '+esc(game.p1)+' & '+esc(game.p2)+'<br><small style="font-weight:400;opacity:0.7">Dupla 1</small>';
-    document.getElementById('surr-btn-2').innerHTML = '🟥 '+esc(game.p3)+' & '+esc(game.p4)+'<br><small style="font-weight:400;opacity:0.7">Dupla 2</small>';
+    document.getElementById('surr-btn-1').innerHTML = '🔵 '+esc(game.p1)+' & '+esc(game.p2);
+    document.getElementById('surr-btn-2').innerHTML = '🟥 '+esc(game.p3)+' & '+esc(game.p4);
     document.getElementById('surrender-overlay').classList.add('show');
   }
   function closeSurrender() { document.getElementById('surrender-overlay').classList.remove('show'); }
@@ -1432,12 +1457,14 @@
   }
   function showTeardrops() {
     const c=document.getElementById('teardrops'); c.innerHTML='';
+    const emojis=['😭','😢','😿','🥺'];
     for(let i=0;i<40;i++){
       const d=document.createElement('div'); d.className='teardrop';
+      d.textContent=emojis[Math.floor(Math.random()*emojis.length)];
       d.style.left=Math.random()*100+'vw';
       const dur=1.4+Math.random()*1.6, delay=Math.random()*2;
       d.style.animation=`fall ${dur}s ${delay}s linear forwards`;
-      d.style.width=(8+Math.random()*8)+'px'; d.style.height=(12+Math.random()*12)+'px';
+      d.style.fontSize=(1.2+Math.random()*1.2)+'rem';
       c.appendChild(d);
     }
   }
