@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hub da Mentorada AJA — Visao de Produto e Plano de Rollout</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+  :root {
+    --bg:#fffdf9;--text:#2d2320;--text2:#6b5e57;--gold:#c9a84c;--gold-dark:#8b6914;
+    --accent-light:#f5edd4;--burgundy:#5c1a2a;--burg-light:#f7eef0;
+    --green:#3d7a5f;--green-light:#edf5f0;--red:#9b2c2c;--red-light:#fdf0f0;
+    --orange:#a16207;--orange-light:#fef9ec;--border:#e8e0d6;--card:#faf7f2;--warm:#f0ebe4;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;color:var(--text);line-height:1.65;font-size:14px;background:var(--bg)}
+  @media print{
+    body{font-size:10.5px;line-height:1.45;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important}
+    *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
+    .page-break{page-break-before:always}
+    .cover{min-height:auto;padding:50px 40px;background:linear-gradient(160deg,#1a0e0a 0%,#2d1a12 30%,#5c1a2a 70%,#8b3a4a 100%) !important}
+    section{padding:28px 40px}
+    table{page-break-inside:avoid}
+    .card,.callout,.future-card,.card-grid{page-break-inside:avoid}
+    thead th{background:var(--burgundy) !important;color:#fff !important}
+    .badge{border:1px solid currentColor}
+    .kpi{border:1px solid var(--border) !important;background:var(--card) !important}
+    .kpi-v{color:var(--burgundy) !important}
+    tbody tr:nth-child(even){background:var(--card) !important}
+    .ic-y{background:var(--green-light) !important}.ic-n{background:var(--red-light) !important}
+    .card-gold{border-left:3px solid var(--gold) !important}
+    .card-green{border-left:3px solid var(--green) !important}
+    .card-red{border-left:3px solid var(--red) !important}
+    .card-burg{border-left:3px solid var(--burgundy) !important}
+    .callout{background:var(--accent-light) !important}
+    .callout-red{background:var(--red-light) !important}
+    .prio-n{color:#fff !important}
+    .p1{background:var(--burgundy) !important}.p2{background:var(--gold-dark) !important}
+    .future-card{background:linear-gradient(135deg,var(--card) 0%,var(--accent-light) 100%) !important}
+    .doc-footer{background:var(--warm) !important}
+    td[style*="accent-light"]{background:var(--accent-light) !important}
+  }
+
+  .cover{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:70px 60px;background:linear-gradient(160deg,#1a0e0a 0%,#2d1a12 30%,#5c1a2a 70%,#8b3a4a 100%);color:#fff;position:relative;overflow:hidden}
+  .cover::before{content:'';position:absolute;top:18%;right:-12%;width:500px;height:500px;background:radial-gradient(circle,rgba(201,168,76,.1) 0%,transparent 70%);border-radius:50%}
+  .cover .butterfly{font-size:44px;margin-bottom:20px;opacity:.8}
+  .cover .tag{font-size:10px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
+  .cover h1{font-family:'Playfair Display',serif;font-size:46px;font-weight:700;line-height:1.1;margin-bottom:14px;max-width:620px}
+  .cover .subtitle{font-size:16px;font-weight:300;color:rgba(255,255,255,.65);max-width:520px;margin-bottom:48px;line-height:1.55}
+  .cover .divider{width:50px;height:2px;background:var(--gold);margin-bottom:28px;opacity:.5}
+  .cover .meta{display:flex;gap:44px;font-size:12px;color:rgba(255,255,255,.45)}
+  .cover .meta strong{color:var(--gold);display:block;font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+
+  .container{max-width:860px;margin:0 auto}
+  section{padding:48px 60px}
+  section+section{border-top:1px solid var(--border)}
+  h2{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--burgundy);margin-bottom:4px}
+  h2 .num{font-family:'Inter';color:var(--gold);font-weight:300;font-size:18px;margin-right:6px}
+  .section-sub{color:var(--text2);font-size:13px;margin-bottom:24px}
+  h3{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;margin-top:28px;margin-bottom:10px}
+  h4{font-size:13px;font-weight:600;margin-top:18px;margin-bottom:6px}
+  p{margin-bottom:12px;font-size:14px}
+  ul,ol{margin-bottom:12px;padding-left:20px}
+  li{margin-bottom:4px;font-size:13px}
+
+  table{width:100%;border-collapse:collapse;margin:12px 0 20px;font-size:12.5px}
+  thead th{background:var(--burgundy);color:#fff;padding:8px 12px;text-align:left;font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px}
+  thead th:first-child{border-radius:5px 0 0 0}thead th:last-child{border-radius:0 5px 0 0}
+  tbody td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:nth-child(even){background:var(--card)}
+
+  .badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:10px;font-weight:600}
+  .b-green{background:var(--green-light);color:var(--green)}
+  .b-red{background:var(--red-light);color:var(--red)}
+  .b-orange{background:var(--orange-light);color:var(--orange)}
+  .b-gold{background:var(--accent-light);color:var(--gold-dark)}
+  .b-burg{background:var(--burg-light);color:var(--burgundy)}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px;margin:10px 0}
+  .card h4{margin-top:0}
+  .card-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+  @media(max-width:700px){.card-grid{grid-template-columns:1fr}}
+  .card-gold{border-left:3px solid var(--gold)}
+  .card-green{border-left:3px solid var(--green)}
+  .card-red{border-left:3px solid var(--red)}
+  .card-burg{border-left:3px solid var(--burgundy)}
+
+  .gap-chart{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:16px 0}
+  .gap-col h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+  .gap-item{display:flex;align-items:center;gap:7px;padding:4px 0;font-size:12.5px}
+  .ic{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+  .ic-y{background:var(--green-light);color:var(--green)}.ic-n{background:var(--red-light);color:var(--red)}
+
+  .callout{background:var(--accent-light);border-radius:8px;padding:16px 20px;margin:16px 0;border:1px solid rgba(201,168,76,.2)}
+  .callout-t{font-weight:700;font-size:12px;color:var(--gold-dark);margin-bottom:3px}
+  .callout p{font-size:12.5px;margin-bottom:0;color:var(--text2)}
+  .callout-red{background:var(--red-light);border-color:rgba(155,44,44,.12)}
+  .callout-red .callout-t{color:var(--red)}
+
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}
+  @media(max-width:700px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+  .kpi{text-align:center;padding:16px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px}
+  .kpi-v{font-size:26px;font-weight:800;color:var(--burgundy);line-height:1}
+  .kpi-l{font-size:10px;color:var(--text2);margin-top:4px;text-transform:uppercase;letter-spacing:.4px}
+
+  .prio{display:flex;align-items:center;gap:10px;margin-top:24px;margin-bottom:12px}
+  .prio-n{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+  .p1{background:var(--burgundy)}.p2{background:var(--gold-dark)}.p3{background:var(--text2)}
+
+  .future-card{background:linear-gradient(135deg,var(--card) 0%,var(--accent-light) 100%);border:1px solid var(--border);border-radius:8px;padding:18px;margin:10px 0}
+  .future-card h4{margin-top:0;color:var(--burgundy);font-family:'Playfair Display',serif;font-size:14px}
+  .future-card p{font-size:12.5px;color:var(--text2);margin-bottom:0}
+  .f-tag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold-dark);background:rgba(201,168,76,.15);padding:2px 7px;border-radius:3px;margin-bottom:6px}
+
+  .doc-footer{padding:32px 60px;background:var(--warm);border-top:1px solid var(--border);font-size:11px;color:var(--text2);text-align:center}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ COVER ═══════════════════════ -->
+<div class="cover">
+  <div class="butterfly">&#x1F98B;</div>
+  <div class="tag">Documento de Produto</div>
+  <h1>Hub da Mentorada</h1>
+  <div class="divider"></div>
+  <div class="subtitle">Visao de Produto, Backlog e Plano de Rollout Progressivo</div>
+  <div class="meta">
+    <div><strong>Autor</strong>Erik Racy Kurtenbach</div>
+    <div><strong>Data</strong>Abril 2026</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ 01 CONTEXTO ═══════════════════════ -->
+<section class="container">
+  <h2><span class="num">01</span> Contexto e Diagnostico</h2>
+  <p class="section-sub">Por que os Hubs existem e onde estamos</p>
+
+  <p>A operacao de CS da AJA depende de multiplas ferramentas desconectadas — Zoho CRM, Slack, planilhas e formularios avulsos. Isso gera dados espalhados, processos despadronizados entre guardias e baixa visibilidade da jornada da mentorada. Os Hubs (CS + Mentorada) surgem como oportunidade de <strong>elevar o nivel de servico</strong>, centralizando informacao e melhorando a experiencia de ponta a ponta.</p>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-v">18%</div><div class="kpi-l">Completude checkup mensal</div></div>
+  </div>
+
+  <h3>Segmentos de mentoradas</h3>
+  <table>
+    <thead><tr><th>Segmento</th><th>Perfil</th><th>Checkup</th><th>Frequencia de reuniao</th></tr></thead>
+    <tbody>
+      <tr><td><strong>PDA Expert</strong></td><td>Plano avancado: analises profundas, consultorias e experiencias presenciais (~30K/ano)</td><td>Mensal</td><td>Mensal</td></tr>
+      <tr><td><strong>PDA Pro</strong></td><td>Acompanhamento constante com ajustes frequentes de estrategia (~30K/ano)</td><td>Mensal</td><td>Mensal (12/ano)</td></tr>
+      <tr><td><strong>PDA Starter</strong></td><td>Direcionamento estrategico com acompanhamento pontual (~18K/ano)</td><td>Mensal</td><td>Trimestral (3/ano)</td></tr>
+      <tr><td><strong>Atmosfera</strong></td><td>Mastermind exclusivo para quem fatura acima de 100K/mes. Somente por convite.</td><td>Mensal</td><td>Variavel</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:var(--text2)"><em>Nota: os numeros exatos de mentoradas ativas por segmento devem ser confirmados com o time antes do rollout. O checkup mensal e preenchido pela mentorada todo mes em todos os planos, independente da frequencia de reunioes.</em></p>
+
+  <div class="callout-red callout">
+    <div class="callout-t">Dado critico: dados nao chegam ao CRM</div>
+    <p style="color:var(--text)">Os dados de checkup existem nos formularios do Zoho Forms, mas <strong>nao sincronizam com o Zoho CRM</strong>. O CRM nao tem registros de NPS, CSAT ou data do ultimo checkup para nenhuma mentorada. O Hub resolve esse problema ao ser a fonte unica de dados.</p>
+  </div>
+
+  <h3>Gap: Hub da Mentorada vs Checkup Mensal</h3>
+  <p>O Hub captura <strong>3 dados</strong>. O checkup atual tem <strong>~30 campos</strong>. Sem os dados de funil, a Calculadora de Projecao — ferramenta central da metodologia — nao pode ser alimentada pelo Hub.</p>
+  <div class="gap-chart">
+    <div class="gap-col">
+      <h4 style="color:var(--green)">Hub captura hoje</h4>
+      <div class="gap-item"><span class="ic ic-y">&#10003;</span> Faturamento total do mes</div>
+      <div class="gap-item"><span class="ic ic-y">&#10003;</span> Meta do proximo mes</div>
+      <div class="gap-item"><span class="ic ic-y">&#10003;</span> Maior conquista (texto)</div>
+    </div>
+    <div class="gap-col">
+      <h4 style="color:var(--red)">Falta (necessario para a metodologia)</h4>
+      <div class="gap-item"><span class="ic ic-n">&#10007;</span> Investimento em trafego</div>
+      <div class="gap-item"><span class="ic ic-n">&#10007;</span> Leads no WhatsApp</div>
+      <div class="gap-item"><span class="ic ic-n">&#10007;</span> Agendamentos / comparecimentos</div>
+      <div class="gap-item"><span class="ic ic-n">&#10007;</span> Vendas (novos + recorrentes)</div>
+      <div class="gap-item"><span class="ic ic-n">&#10007;</span> Ticket medio</div>
+      <div class="gap-item"><span class="ic ic-n">&#10007;</span> Evolucao financeira historica</div>
+      <div class="gap-item"><span class="ic ic-n">&#10007;</span> Tarefas da guardia</div>
+      <div class="gap-item"><span class="ic ic-n">&#10007;</span> NPS</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 02 BACKLOG ═══════════════════════ -->
+<section class="container page-break">
+  <h2><span class="num">02</span> Backlog do Hub da Mentorada</h2>
+  <p class="section-sub">Priorizado por dependencia e impacto no rollout</p>
+
+  <div class="prio">
+    <div class="prio-n p1">P1</div>
+    <div><h3 style="margin:0">Bloqueadores de rollout</h3><p style="margin:0;font-size:11px;color:var(--text2)">Sem essas features, nao e possivel desligar o Zoho Forms</p></div>
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>Feature</th><th>Descricao</th><th>Complexidade</th></tr></thead>
+    <tbody>
+      <tr><td>B1</td><td><strong>Checkup mensal completo</strong></td><td>Substituir o fluxo atual de 3 telas (faturamento + meta + conquista) por um wizard multi-step que capture o funil completo da mentorada, separado entre novos pacientes e recorrentes. Campos de funil sao numericos e objetivos (leads, agendamentos, comparecimentos, vendas, ticket medio, investimento em trafego, novos seguidores). Campos de reflexao (maior conquista, maior desafio, percepcao de progresso) devem ser opcionais para nao prejudicar a taxa de conclusao. O checkup e mensal para todos os planos, independente da frequencia de reunioes. Esse e o unico caminho para viabilizar a alimentacao automatica da Calculadora de Projecao.</td><td><span class="badge b-red">Alta</span></td></tr>
+      <tr><td>B2</td><td><strong>Sync checkup &#8594; calculadora</strong></td><td>Os dados preenchidos pela mentorada no Hub devem alimentar automaticamente a Calculadora de Projecao de Faturamento no Hub de CS. Hoje, a guardia preenche a calculadora manualmente a partir dos dados do Zoho Forms (ou perguntando ao vivo no call). A sincronia automatica elimina esse retrabalho, garante consistencia entre o que a mentorada informou e o que a guardia ve, e permite que a reuniao comece ja com o diagnostico pronto (quais alavancas estao abaixo do ideal).</td><td><span class="badge b-red">Alta</span></td></tr>
+      <tr><td>B3</td><td><strong>Perfil completo da mentorada</strong></td><td>Expandir a tela de perfil (que hoje mostra apenas nome e cidade) para incluir os dados que a Carta de Entrada coleta no onboarding: formacao profissional, cidade e formato do local de trabalho, composicao da equipe, procedimentos que realiza, publico-alvo, faturamento baseline e objetivo de faturamento para 12 meses. Esses dados sao relativamente estaticos (mudam pouco ao longo da mentoria) e devem poder ser editados pela mentorada ou pela guardia a qualquer momento. Substitui a necessidade da Carta de Entrada no Zoho Forms.</td><td><span class="badge b-orange">Media</span></td></tr>
+      <tr><td>B4</td><td><strong>Migracao de dados historicos</strong></td><td>Para que mentoradas existentes nao encontrem um app vazio no primeiro acesso, os dados ja coletados via Zoho Forms (checkups anteriores, faturamento historico) devem ser importados para o Hub. Sem essa migracao, perde-se o argumento de "veja sua evolucao" e a mentorada nao tem incentivo para adotar a nova ferramenta. Inclui mapeamento de campos Zoho &#8594; Hub, tratamento de inconsistencias e validacao manual do dataset piloto antes de escalar.</td><td><span class="badge b-orange">Media</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="prio">
+    <div class="prio-n p2">P2</div>
+    <div><h3 style="margin:0">Valor para a mentorada</h3><p style="margin:0;font-size:11px;color:var(--text2)">Geram incentivo para preencher e voltar ao app</p></div>
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>Feature</th><th>Descricao</th><th>Complexidade</th></tr></thead>
+    <tbody>
+      <tr><td>V1</td><td><strong>Evolucao financeira historica</strong></td><td>Grafico de linha mostrando o faturamento da mentorada mes a mes, com indicadores visuais de meta atingida vs nao atingida. A mentorada deve conseguir ver sua trajetoria desde o inicio da mentoria. Essa e a feature que mais gera incentivo para preenchimento recorrente: a mentorada quer ver o grafico completo e atualizado, criando um ciclo virtuoso entre preencher &#8594; visualizar &#8594; preencher de novo.</td><td><span class="badge b-orange">Media</span></td></tr>
+      <tr><td>V2</td><td><strong>Visao de funil pessoal</strong></td><td>Dashboard pessoal da mentorada mostrando as taxas de conversao de cada etapa do funil (leads &#8594; agendamento &#8594; comparecimento &#8594; venda), separado entre novos pacientes e recorrentes. Permite que a mentorada identifique seus proprios gargalos (ex: muitos leads mas poucos agendamentos = problema na secretaria/comercial) sem depender exclusivamente da guardia para interpretar os dados. Depende de B1 (checkup completo) para ter dados.</td><td><span class="badge b-orange">Media</span></td></tr>
+      <tr><td>V3</td><td><strong>Tarefas da guardia</strong></td><td>Area no app onde a mentorada visualiza as acoes combinadas com a guardia durante a reuniao (ex: "aumentar investimento em trafego para R$X", "implementar agendamento pago"). Cada tarefa tem status (pendente / concluida) e a mentorada pode marcar como feita. Resolve a percepcao de "falta de acompanhamento" entre reunioes e da clareza sobre o que deve ser executado ate o proximo encontro.</td><td><span class="badge b-green">Baixa</span></td></tr>
+      <tr><td>V4</td><td><strong>Badges e gamificacao expandidos</strong></td><td>O app ja possui 3 badges (Cadastro Completo, Sempre Presente, Em Ascensao), mas quase todos estao inativos. Expandir para destravar badges com base em comportamentos reais: preenchimento consecutivo de checkups, atingimento de metas, evolucao de faturamento, conclusao de trilhas de conteudo. Gamificacao leve que recompensa consistencia e engajamento.</td><td><span class="badge b-green">Baixa</span></td></tr>
+      <tr><td>V5</td><td><strong>NPS nativo</strong></td><td>Coleta de NPS (Net Promoter Score) de forma nativa dentro do Hub, separada do checkup mensal (hoje o NPS esta embutido no formulario do Zoho Forms, o que contribui para a baixa adesao). Coleta trimestral com tracking temporal por mentorada, permitindo acompanhar a evolucao da satisfacao ao longo do tempo e segmentar por plano, guardia ou fase da mentoria.</td><td><span class="badge b-green">Baixa</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <div class="callout-t">Wizard do checkup sugerido (feature B1)</div>
+    <table style="margin-top:8px;margin-bottom:0">
+      <thead><tr><th>Step</th><th>Campos</th><th>Tempo</th></tr></thead>
+      <tbody>
+        <tr><td>1. Faturamento</td><td>Faturamento total, meta (+10/15/20%)</td><td>30s</td></tr>
+        <tr><td>2. Marketing</td><td>Investimento trafego, novos seguidores</td><td>30s</td></tr>
+        <tr><td>3. Funil novos</td><td>Leads, agendamentos, comparecimentos, vendas, ticket medio</td><td>60s</td></tr>
+        <tr><td>4. Funil recorrentes</td><td>Leads, agendamentos, comparecimentos, vendas, ticket medio</td><td>60s</td></tr>
+        <tr><td>5. Reflexao <span class="badge b-gold">opcional</span></td><td>Conquista, desafio, percepcao</td><td>60s</td></tr>
+        <tr><td colspan="2"><strong>Total estimado</strong></td><td><strong>~4 min</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════ 03 ROLLOUT ═══════════════════════ -->
+<section class="container page-break">
+  <h2><span class="num">03</span> Plano de Rollout Progressivo</h2>
+  <p class="section-sub">Cada fase so avanca ao atingir os KPIs. Se nao forem atingidos, revisar antes de expandir.</p>
+
+  <div class="callout">
+    <div class="callout-t">Premissa</div>
+    <p>O rollout segue a segmentacao real da base. O piloto comeca pelo segmento premium (PDA Pro), que tem maior frequencia de contato e mais touchpoints para iterar. A expansao e progressiva e condicionada ao atingimento das metricas-chave. Se os KPIs nao forem atingidos em uma fase, a equipe deve revisar hipoteses e ajustar o produto <strong>antes</strong> de expandir. O criterio final de sucesso e <strong>desligar o Zoho Forms</strong>.</p>
+  </div>
+
+  <h3>Metricas-chave do rollout</h3>
+  <p>As mesmas metricas sao acompanhadas em <strong>todas as fases</strong>, segmentadas por plano. A tabela abaixo e o painel central de acompanhamento do rollout.</p>
+  <table>
+    <thead><tr><th>Metrica</th><th>Baseline (Fase 0)</th><th>Meta piloto</th><th>Meta final</th><th>Se nao atingir</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Completude do checkup</strong><br><span style="font-size:11px;color:var(--text2)">% de mentoradas que preencheram no mes</span></td><td>18% (global)</td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td>Revisar UX do wizard, reduzir campos obrigatorios</td></tr>
+      <tr><td><strong>Adocao do app</strong><br><span style="font-size:11px;color:var(--text2)">% de mentoradas que fizeram login pelo menos 1x</span></td><td>0%</td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td>Reforcar comunicacao via guardia; investigar barreira iOS/Android</td></tr>
+      <tr><td><strong>Tempo de preenchimento</strong><br><span style="font-size:11px;color:var(--text2)">Tempo medio para completar o checkup</span></td><td>—</td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td>Simplificar steps, revisar inputs</td></tr>
+      <tr><td><strong>Consistencia de dados</strong><br><span style="font-size:11px;color:var(--text2)">% de checkups que alimentam a calculadora corretamente</span></td><td>—</td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td>Debugar integracao</td></tr>
+      <tr><td><strong>NPS</strong><br><span style="font-size:11px;color:var(--text2)">Nota media de indicacao</span></td><td><em>Coletar na Fase 0</em></td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td>Investigar insatisfacao por segmento</td></tr>
+      <tr><td><strong>Churn rate</strong><br><span style="font-size:11px;color:var(--text2)">% de nao-renovacao por segmento</span></td><td><em>Coletar na Fase 0</em></td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td>Correlacionar com engajamento no app</td></tr>
+      <tr><td><strong>Bugs bloqueantes</strong><br><span style="font-size:11px;color:var(--text2)">Impacto critico no uso do app</span></td><td>—</td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td style="background:var(--accent-light);color:var(--gold-dark);font-style:italic">A definir</td><td>Corrigir antes de expandir</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:var(--gold-dark)"><em>As metas para cada metrica devem ser definidas pelo time de produto apos a coleta do baseline (Fase 0). As celulas "A definir" sao placeholders para preenchimento.</em></p>
+
+  <h3>Fase 0 — Baseline</h3>
+  <p>Registrar o estado atual de cada metrica-chave, segmentado por plano, antes de qualquer mudanca. Sem baseline, nao ha como avaliar impacto.</p>
+  <table>
+    <thead><tr><th>Metrica</th><th>PDA Expert</th><th>PDA Pro</th><th>PDA Starter</th><th>Atmosfera</th></tr></thead>
+    <tbody>
+      <tr><td>Completude checkup</td><td colspan="4" style="text-align:center"><em>18% global — coletar por segmento</em></td></tr>
+      <tr><td>NPS medio</td><td colspan="4" style="text-align:center"><em>Sem dados — coletar</em></td></tr>
+      <tr><td>Churn rate</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>Mentoradas ativas</td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Fase 1 — Piloto: PDA Expert + PDA Pro</h3>
+  <p>Segmentos premium com reunioes mensais — maior frequencia de touchpoints para iterar. PDA Expert e o plano de maior ticket e PDA Pro o de maior acompanhamento. Guardia apresenta o app no call de acompanhamento.</p>
+  <div class="card card-gold">
+    <h4>Features necessarias (do backlog)</h4>
+    <p style="font-size:12px;margin-bottom:0">B1 (checkup completo) + B2 (sync calculadora) + B3 (perfil) + B4 (migracao) + V1 (evolucao financeira)</p>
+  </div>
+  <p style="font-size:13px">Acompanhar todas as metricas-chave para estes segmentos. <strong>Criterio para avancar:</strong> completude do checkup superior ao baseline, zero bugs bloqueantes por 1 semana, feedback qualitativo positivo de guardias e mentoradas.</p>
+
+  <h3>Fase 2 — PDA Starter</h3>
+  <p>Reunioes trimestrais, porem <strong>checkup mensal continua sendo preenchido todo mes</strong> pela mentorada no app. App publicado na App Store (sair do TestFlight). Acompanhar metricas-chave para este segmento. Criterio para avancar: metricas estaveis ou superiores ao piloto.</p>
+
+  <h3>Fase 3 — Atmosfera + Desligamento Zoho</h3>
+  <p>Atmosfera e o grupo mais seleto da AJA (comunidade premium). O Hub so deve chegar a este segmento quando as fases anteriores tiverem demonstrado que o produto funciona como proposto. <strong>Pre-requisitos para iniciar:</strong></p>
+  <ul style="font-size:13px">
+    <li>Completude de checkup consistentemente acima do baseline (18%) nas fases anteriores</li>
+    <li>Adocao do app estavel (&gt;70% de login) nos segmentos ja ativados</li>
+    <li>Integracao checkup &#8594; calculadora funcionando sem inconsistencias</li>
+    <li>Feedback qualitativo positivo de guardias e mentoradas nas fases anteriores</li>
+  </ul>
+  <p><strong>Criterio de conclusao do rollout completo:</strong> zero preenchimentos novos no Zoho Forms (100% migrado para o Hub) e metricas-chave estaveis em todos os segmentos.</p>
+
+  <h3>Riscos</h3>
+  <table>
+    <thead><tr><th>Risco</th><th>Prob.</th><th>Impacto</th><th>Mitigacao</th></tr></thead>
+    <tbody>
+      <tr><td>Mentoradas nao baixam o app</td><td><span class="badge b-orange">Media</span></td><td><span class="badge b-red">Alto</span></td><td>Guardia apresenta no call; badge exclusivo</td></tr>
+      <tr><td>Checkup longo demais</td><td><span class="badge b-orange">Media</span></td><td><span class="badge b-orange">Medio</span></td><td>Funil obrigatorio, reflexao opcional</td></tr>
+      <tr><td>Dados migrados inconsistentes</td><td><span class="badge b-red">Alta</span></td><td><span class="badge b-orange">Medio</span></td><td>Validacao manual do dataset piloto</td></tr>
+      <tr><td><strong>App so iOS</strong></td><td><span class="badge b-gold">?</span></td><td><span class="badge b-red">Critico</span></td><td>Levantar % Android antes da Fase 2; considerar PWA</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- secao de metricas removida — consolidada na tabela de metricas-chave do rollout (secao 03) -->
+
+<!-- ═══════════════════════ 05 FUTURO ═══════════════════════ -->
+<section class="container">
+  <h2><span class="num">04</span> Visao de Futuro</h2>
+  <p class="section-sub">Features de alto impacto para apos a estabilizacao do rollout</p>
+
+  <div class="future-card">
+    <div class="f-tag">Inteligencia de dados</div>
+    <h4>Modelo de previsibilidade de churn</h4>
+    <p>A partir dos dados acumulados (evolucao de faturamento, frequencia de preenchimento, NPS, engajamento), gerar uma <strong>nota de risco de churn</strong> para cada mentorada. A guardia e supervisora atuam preventivamente nos casos de maior risco. Os segmentos com maior churn historico seriam os mais beneficiados por um modelo preditivo.</p>
+  </div>
+
+  <div class="future-card">
+    <div class="f-tag">IA aplicada</div>
+    <h4>Assistente de IA para a guardia</h4>
+    <p>Integrado ao Hub de CS, antes de cada reuniao apresenta automaticamente:</p>
+    <ul style="font-size:12.5px;margin-top:6px">
+      <li><strong>Briefing:</strong> resumo do ultimo checkup, evolucao vs mes anterior, gargalos no funil</li>
+      <li><strong>Pendencias:</strong> tarefas combinadas na ultima reuniao nao concluidas</li>
+      <li><strong>Sugestoes de pauta:</strong> assuntos relevantes com base nas alavancas abaixo do ideal</li>
+      <li><strong>Historico condensado:</strong> destaques das ultimas 2-3 conversas para garantir continuidade</li>
+    </ul>
+    <p style="margin-top:8px">Reduz tempo de preparacao e garante que nenhum ponto seja esquecido — independente de qual guardia conduz a reuniao.</p>
+  </div>
+
+  <div class="callout">
+    <div class="callout-t">Pre-requisito</div>
+    <p>Ambas dependem de dados estruturados e historico acumulado (minimo 3 meses). O rollout deste documento e a base que viabiliza essa evolucao.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<div class="doc-footer">
+  <p><strong>Fontes:</strong> Entrevistas com time de CS &middot; Extracao Zoho CRM &middot; Analise formularios Zoho Forms &middot; Prototipo TestFlight</p>
+  <p style="margin-top:5px">Documento confidencial — AJA Educacao</p>
+</div>
+
+</body>
+</html>
